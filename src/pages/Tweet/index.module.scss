@@ -1,0 +1,17 @@
+.tweet {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  caret-color: #fff;
+  color: #fff;
+  height: 140px !important;
+  border-radius: 18px;
+  color: #fff;
+  font-size: 20px !important;
+  padding: 16px !important;
+  &::placeholder {
+    color: #aaa !important;
+    font-size: 20px;
+  }
+}

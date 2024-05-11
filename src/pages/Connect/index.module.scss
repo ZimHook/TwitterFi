@@ -1,0 +1,83 @@
+.connect {
+  padding-bottom: 64px;
+  .banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    .banner_logo {
+      width: 400px;
+      height: 400px;
+      object-fit: contain;
+    }
+    .banner_text {
+      .banner_text_title {
+        font-size: 64px;
+        color: #03fffb;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+      .banner_text_subtitle {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+    }
+  }
+  .get_start {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 200px;
+    .stepper {
+      display: flex;
+      .stepper_item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        :global .anticon {
+          font-size: 64px;
+        }
+        .dot {
+          display: flex;
+          align-items: center;
+          .line {
+            height: 1px;
+            width: 160px;
+            background-color: #03fffb;
+          }
+          .circle {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #03fffb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .fill{
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #03fffb;
+          }
+        }
+        .desc {
+          background-color: #003d3c;
+          border-radius: 16px;
+          padding: 6px 24px;
+          width: fit-content;
+          color: #03fffb;
+          margin-bottom: 20px;
+        }
+      }
+    }
+    .btn {
+      width: 240px;
+      height: 48px;
+      font-size: 24px;
+      border-radius: 16px;
+    }
+  }
+}

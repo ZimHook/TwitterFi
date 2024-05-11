@@ -1,0 +1,45 @@
+.footer{
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #03fffb;
+  border-radius: 16px;
+  padding: 24px 72px;
+  margin-bottom: 64px;
+  .left{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .logo{
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      >img{
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+      }
+    }
+  }
+  .right{
+    display: flex;
+    gap: 48px;
+    .links{
+      .title{
+        font-weight: 700;
+        color: #03fffb;
+        margin-bottom: 24px;
+      }
+      .link_item{
+        cursor: pointer;
+        :global .anticon{
+          color: #03fffb;
+          margin-right: 6px;
+        }
+        margin-bottom: 12px;
+        &:last-child{
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}

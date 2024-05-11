@@ -1,0 +1,37 @@
+.header{
+  display: flex;
+  height: 72px;
+  align-items: center;
+  .logo{
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 120px;
+    >img{
+      width: 32px;
+      height: 32px;
+    }
+  }
+  .nav{
+    display: flex;
+    font-size: 14px;
+    gap: 24px;
+    .nav_item{
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+  .action {
+    display: flex;
+    justify-content: end;
+    flex-grow: 1;
+    .login_btn{
+      background-color: #03fffb;
+      color: #000;
+      border-radius: 16px;
+      padding: 6px 24px;
+      cursor: pointer;
+    }
+  }
+}

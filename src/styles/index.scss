@@ -1,0 +1,15 @@
+@import "./_normalize.css";
+@import "./fonts.scss";
+
+html,
+body{
+  font-family: system-ui;
+  user-select: text;
+  padding: 0 32px;
+  background-color: #000;
+  color: #fff;
+}
+
+div{
+  box-sizing: border-box;
+}
