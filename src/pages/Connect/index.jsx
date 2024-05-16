@@ -1,14 +1,24 @@
 import styles from "./index.module.scss";
-import { Button, Steps } from "antd";
+import { Button, message } from "antd";
 import { UserAddOutlined, WalletOutlined } from "@ant-design/icons";
 import { useDispatchStore, useStateStore } from "../../context";
-import { openWindow, observeWindow } from "../../utils/window.ts";
+import { useEffect, useRef, useState } from "react";
 import {
-  obtainOauthRequestToken,
-  obtainOauthAccessToken,
-} from "../../utils/oauth1.ts";
-import { useEffect, useRef } from "react";
-import { register } from "../../api/index.js";
+  register,
+  twitterRequestToken,
+  twitterAccessToken,
+  queryUser,
+  bindWallet,
+  reigster,
+} from "../../api/index.js";
+import { openWindow } from "../../utils/window.js";
+import {
+  TonConnectButton,
+  useTonAddress,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react";
+import { generateStates } from "../../utils/binaryString.js";
 
 const Step = (props) => {
   return (
@@ -29,93 +39,128 @@ const Step = (props) => {
 const Connect = () => {
   const { userinfo } = useStateStore();
   const dispatch = useDispatchStore();
-  const { connected, twitterLinked, walletConnected, user_id } = userinfo;
+  const { connected, address } = userinfo;
+  const [tonConnectUI, setOptions] = useTonConnectUI();
+  const tonaddress = useTonAddress(true);
 
-  const popup = useRef();
+  const [loading, setLoading] = useState(false);
+  const [needConnectWallet, setNeedConnectWallet] = useState(false);
 
   const linkTwitter = async () => {
-    const consumerKey = "GLmjMYadi4YF9FHBrwGjIUf01";
-    const consumerSecret = "yKXNMdAktxz2eVjyC8gguPDvBC4j5MDEXawTcMgxNRhQXdpzPs";
-    popup.current = openWindow({
-      url: ``,
-      name: "Log in with Twitter",
-    });
-
-    const obtainRequestTokenConfig = {
-      apiUrl: "https://api.twitter.com/oauth/request_token",
-      callbackUrl: window.location.href,
-      consumerKey,
-      consumerSecret,
-      method: "POST",
-    };
-    const requestTokenData = await obtainOauthRequestToken(
-      obtainRequestTokenConfig
-    );
-    if (
-      requestTokenData.oauth_callback_confirmed === "true" &&
-      popup.current !== null
-    ) {
-      popup.current.location.href = `https://api.twitter.com/oauth/authorize?oauth_token=${requestTokenData.oauth_token}`;
-    } else {
-      this.handleError(
-        `Callback URL "${window.location.href}" is not confirmed. Please check that is whitelisted within the Twitter app settings.`
-      );
+    setLoading(true);
+    try {
+      const requestTokenResult = await twitterRequestToken({
+        callbackUrl: `${window.location.origin}/twitter_auth_callback`,
+      });
+      if (requestTokenResult?.data?.request_token) {
+        const url = `https://api.twitter.com/oauth/authorize?oauth_token=${requestTokenResult.data.request_token}`;
+        const popup = openWindow({ url, name: "Auth Twitter" });
+        const authResult = await new Promise((resolve) => {
+          const twitterAuthKey = "twitter_auth_tmp_data";
+          const interval = setInterval(function () {
+            if (popup.closed) {
+              clearInterval(interval);
+              resolve({ errMsg: "Canceled by user" });
+            }
+          }, 500);
+          const checkTwitterAuthed = () => {
+            const authData = localStorage.getItem(twitterAuthKey);
+            if (!authData) return;
+            clearInterval(interval);
+            localStorage.removeItem(twitterAuthKey);
+            window.removeEventListener("storage", checkTwitterAuthed);
+            popup?.close();
+            resolve(JSON.parse(authData));
+          };
+          window.addEventListener("storage", checkTwitterAuthed);
+        });
+        if (authResult.errMsg) {
+          message.error(authResult.errMsg);
+        } else {
+          const accessTokenResult = await twitterAccessToken({
+            request_token: authResult.oauth_token,
+            oauth_verifier: authResult.oauth_verifier,
+          });
+          const accessToken = accessTokenResult?.data?.access_token;
+          if (accessToken) {
+            // localStorage.setItem("twitterfi_access_token", accessToken);
+            const userinfo = await reigster({ access_token: accessToken });
+            dispatch({
+              type: "setUserinfo",
+              userinfo: {
+                ...(userinfo?.data?.twitter ?? {}),
+                ...(userinfo?.data?.user ?? {}),
+                connected: true,
+              },
+            });
+            localStorage.setItem("twitterfi_jwt", userinfo?.data?.token);
+          } else {
+            message.error("Access Token Failed");
+          }
+        }
+      } else {
+        message.error("Request Token Failed");
+      }
+    } catch (err) {
+      message.error("twitter auth failed");
+    } finally{
+      setLoading(false)
     }
   };
 
-  const connectWallet = async () => {
-    await window.bitkeep.ton.send("ton_requestAccounts")
-    const requestWallet = await window.bitkeep.ton.send("ton_requestWallets")
-    await window.bitkeep.ton.send("ton_requestAccounts")
-    const check_message = 'Sign this message to login to Twitterfi'
-    const signature = await window.bitkeep.ton.send("ton_personalSign", [
-      {
-        data: check_message,
-      },
-    ]);
-    register({twitter: user_id, address: requestWallet[0].address, check_message, signature })
+  const connectWallet = () => {
+    tonConnectUI
+      .disconnect()
+      .then(console.log)
+      .catch(console.log)
+      .finally(() => {
+        tonConnectUI.openModal();
+      });
   };
 
-  useEffect(() => {
-    if (window.opener) {
-      const [, oauthToken, oauthVerifier] =
-        window.location.search.match(
-          /^(?=.*oauth_token=([^&]+)|)(?=.*oauth_verifier=([^&]+)|).+$/
-        ) || [];
-      window.opener.postMessage(
-        {
-          type: "authorized",
-          data: {
-            oauthToken,
-            oauthVerifier,
-          },
-        },
-        window.origin
-      );
-    } else {
-      const consumerKey = "GLmjMYadi4YF9FHBrwGjIUf01";
-      const consumerSecret =
-        "yKXNMdAktxz2eVjyC8gguPDvBC4j5MDEXawTcMgxNRhQXdpzPs";
-      window.onmessage = async ({ data: { type, data } }) => {
-        if (type === "authorized") {
-          const accessTokenData = await obtainOauthAccessToken({
-            apiUrl: "https://api.twitter.com/oauth/access_token",
-            consumerKey,
-            consumerSecret,
-            oauthToken: data.oauthToken,
-            oauthVerifier: data.oauthVerifier,
-            method: "POST",
-          });
+  const getUserinfo = () => {
+    queryUser()
+        .then((res) => {
+          console.log('aaa', res)
           dispatch({
             type: "setUserinfo",
             userinfo: {
-              ...accessTokenData,
-              twitterLinked: true,
+              ...(res?.data?.twitter ?? {}),
+              ...(res?.data?.user ?? {}),
+              connected: true,
             },
           });
-          popup.current.close();
-        }
-      };
+        })
+        .catch(console.log)
+        .finally(() => {
+          setLoading(false);
+        });
+  }
+
+  useEffect(() => {
+    if (tonaddress) {
+      setLoading(true);
+      bindWallet({ address: tonaddress })
+        .then(() => {
+          getUserinfo()
+          tonConnectUI.disconnect()
+        })
+        .catch(console.log)
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [tonaddress]);
+
+
+  useEffect(() => {
+    setLoading(true);
+    const jwt = localStorage.getItem("twitterfi_jwt");
+    console.log('aaa', jwt)
+    if (jwt) {
+      getUserinfo()
+    } else {
+      setLoading(false)
     }
   }, []);
 
@@ -143,12 +188,12 @@ const Connect = () => {
       <div className={styles.get_start}>
         <div className={styles.stepper}>
           <Step
-            finished={twitterLinked}
+            finished={connected}
             icon={UserAddOutlined}
             text="Login with Twitter"
           />
           <Step
-            finished={walletConnected}
+            finished={address}
             icon={WalletOutlined}
             text="Connect wallet"
           />
@@ -157,11 +202,13 @@ const Connect = () => {
           type="primary"
           className={styles.btn}
           onClick={() => {
-            twitterLinked ? connectWallet() : linkTwitter();
+            connected ? connectWallet() : linkTwitter();
           }}
+          loading={loading}
         >
-          {twitterLinked ? "Connect wallet" : "Login with Twitter"}
+          {connected ? "Connect wallet" : "Login with Twitter"}
         </Button>
+        {/* <TonConnectButton /> */}
       </div>
     </div>
   );

@@ -1,0 +1,25 @@
+.loader {
+  width: .85em;
+  height: .85em;
+  border: .054em solid #FFF;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  :global{
+    animation: rotation 1s linear infinite;
+  }
+} 
+.loader::after {
+  content: '';  
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: .054em solid transparent;
+  border-bottom-color: #326bfb;
+}

@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./layouts";
 import Home from "./pages/Home";
 import Docs from "./pages/Docs"
+import TwitterAuthCallback from "./pages/TwitterAuthCallback";
 
 const routes = [
   {
@@ -20,6 +21,10 @@ const routes = [
         path: "docs",
         element: <Docs />,
       },
+      {
+        path: "twitter_auth_callback",
+        element: <TwitterAuthCallback />,
+      }
     ],
   },
 ];

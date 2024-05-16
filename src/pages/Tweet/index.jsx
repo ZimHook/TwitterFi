@@ -1,6 +1,7 @@
 import { Input } from "antd";
 import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
+import { postTwitter } from "../../api";
 
 const Tweet = () => {
   const [input, setInput] = useState("");
@@ -13,6 +14,7 @@ const Tweet = () => {
       setErrorMsg("Can't Post Empty Tweet")
       return
     }
+    postTwitter(input)
   }
 
   useEffect(() => {

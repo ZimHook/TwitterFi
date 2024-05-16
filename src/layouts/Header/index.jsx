@@ -1,6 +1,6 @@
 import styles from "./index.module.scss";
 import { useNavigate } from "react-router-dom";
-import { Button } from "antd";
+import { Button, Popover } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useStateStore } from "../../context";
 
@@ -54,23 +54,87 @@ const Header = () => {
       </div>
       <div className={styles.action}>
         {userinfo.screen_name ? (
-          <div style={{ display: "flex", alignItems: 'center', gap: 12 }}>
-            {userinfo.screen_name}
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                background: "#aaa",
-                borderRadius: "50%",
-                overflow: "hidden",
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <UserOutlined style={{ fontSize: 24 }} />
+          <Popover
+            title={
+              <div style={{ width: 240, padding: 12 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <div style={{ fontWeight: 700, color: "#000" }}>
+                    Address
+                  </div>
+                  <div
+                    style={{
+                      color: "#8c8c8c",
+                      maxWidth: 100,
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {userinfo.address}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <div style={{ fontWeight: 700, color: "#000" }}>
+                    Twitter
+                  </div>
+                  <div
+                    style={{
+                      color: "#8c8c8c",
+                      maxWidth: 100,
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {userinfo.screen_name}
+                  </div>
+                </div>
+              </div>
+            }
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {userinfo.screen_name}
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  background: "#aaa",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {userinfo?.profile_image_url ? (
+                  <img
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                    src={userinfo.profile_image_url}
+                  />
+                ) : (
+                  <UserOutlined style={{ fontSize: 24 }} />
+                )}
+              </div>
             </div>
-          </div>
+          </Popover>
         ) : (
           <div
             className={styles.login_btn}

@@ -1,5 +1,4 @@
 export const userinfoState = {
-  connected: true
 };
 
 export const userinfoReducer = (state, action) => {

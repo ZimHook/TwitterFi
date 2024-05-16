@@ -19,11 +19,11 @@ const tabs = [
 
 const Home = () => {
   const { userinfo } = useStateStore();
-  const { connected } = userinfo;
+  const { connected, address } = userinfo;
 
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-  if (!connected) return <Connect />;
+  if (!connected || !address) return <Connect />;
 
   return (
     <div>
