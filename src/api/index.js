@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const bodyToUrlParams = (body) => {
   let urlParams = "?";
   Object.keys(body).forEach((key) => {
@@ -79,14 +81,45 @@ export const bindWallet = (body) => {
   });
 };
 
-export const postTwitter = (tweet) => {
-  return fetch("https://api.tweetfi.cc/api/twitters/v2/tweet", {
+export const postTwitter = async(tweet, tag, tag_id) => {
+  const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tweet", {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
       Authorization: "Bearer " + getJwt(),
     },
-    body: JSON.stringify({ message: tweet }),
+    body: JSON.stringify({ message: tweet, tag, tag_id}),
   });
+  const data = await res.json();
+  return data?.data;
+};
+
+export const getPostTags = async () => {
+  const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tags", {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + getJwt(),
+    },
+  });
+  const data = await res.json();
+  return data?.data;
+};
+
+export const getAiTweet = async (tag) => {
+  const res = await axios.post(
+    "https://api.tweetfi.cc/api/twitters/v2/ai_message",
+    { message: "Please generate a tweet about" + tag },
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + getJwt(),
+      },
+      timeout: 0,
+    }
+  );
+  return res;
 };

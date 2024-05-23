@@ -40,11 +40,10 @@ const Connect = () => {
   const { userinfo } = useStateStore();
   const dispatch = useDispatchStore();
   const { connected, address } = userinfo;
-  const [tonConnectUI, setOptions] = useTonConnectUI();
+  const [tonConnectUI] = useTonConnectUI();
   const tonaddress = useTonAddress(true);
 
   const [loading, setLoading] = useState(false);
-  const [needConnectWallet, setNeedConnectWallet] = useState(false);
 
   const linkTwitter = async () => {
     setLoading(true);
@@ -85,15 +84,8 @@ const Connect = () => {
           if (accessToken) {
             // localStorage.setItem("twitterfi_access_token", accessToken);
             const userinfo = await reigster({ access_token: accessToken });
-            dispatch({
-              type: "setUserinfo",
-              userinfo: {
-                ...(userinfo?.data?.twitter ?? {}),
-                ...(userinfo?.data?.user ?? {}),
-                connected: true,
-              },
-            });
             localStorage.setItem("twitterfi_jwt", userinfo?.data?.token);
+            await getUserinfo();
           } else {
             message.error("Access Token Failed");
           }
@@ -103,8 +95,8 @@ const Connect = () => {
       }
     } catch (err) {
       message.error("twitter auth failed");
-    } finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,10 +110,10 @@ const Connect = () => {
       });
   };
 
-  const getUserinfo = () => {
-    queryUser()
-        .then((res) => {
-          console.log('aaa', res)
+  const getUserinfo = async () => {
+    await queryUser()
+      .then((res) => {
+        if (res?.data) {
           dispatch({
             type: "setUserinfo",
             userinfo: {
@@ -130,20 +122,21 @@ const Connect = () => {
               connected: true,
             },
           });
-        })
-        .catch(console.log)
-        .finally(() => {
-          setLoading(false);
-        });
-  }
+        }
+      })
+      .catch(console.log)
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     if (tonaddress) {
       setLoading(true);
       bindWallet({ address: tonaddress })
         .then(() => {
-          getUserinfo()
-          tonConnectUI.disconnect()
+          getUserinfo();
+          tonConnectUI.disconnect();
         })
         .catch(console.log)
         .finally(() => {
@@ -152,15 +145,14 @@ const Connect = () => {
     }
   }, [tonaddress]);
 
-
   useEffect(() => {
     setLoading(true);
     const jwt = localStorage.getItem("twitterfi_jwt");
-    console.log('aaa', jwt)
+    console.log("aaa", jwt);
     if (jwt) {
-      getUserinfo()
+      getUserinfo();
     } else {
-      setLoading(false)
+      setLoading(false);
     }
   }, []);
 
