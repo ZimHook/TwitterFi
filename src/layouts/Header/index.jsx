@@ -21,8 +21,6 @@ const Header = () => {
   const { userinfo } = useStateStore();
   const navigate = useNavigate();
 
-  console.log("aaa", userinfo);
-
   return (
     <div className={styles.header}>
       <div

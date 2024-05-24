@@ -81,7 +81,7 @@ export const bindWallet = (body) => {
   });
 };
 
-export const postTwitter = async(tweet, tag, tag_id) => {
+export const postTwitter = async (tweet, tag, tag_id) => {
   const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tweet", {
     method: "POST",
     headers: {
@@ -89,7 +89,7 @@ export const postTwitter = async(tweet, tag, tag_id) => {
       "Content-Type": "application/json",
       Authorization: "Bearer " + getJwt(),
     },
-    body: JSON.stringify({ message: tweet, tag, tag_id}),
+    body: JSON.stringify({ message: tweet, tag, tag_id }),
   });
   const data = await res.json();
   return data?.data;
@@ -122,4 +122,19 @@ export const getAiTweet = async (tag) => {
     }
   );
   return res;
+};
+
+export const getTagHistory = async (tag_content) => {
+  const res = await axios.post(
+    "https://api.tweetfi.cc/api/twitters/v2/tag_count_history",
+    { tag_content },
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + getJwt(),
+      },
+    }
+  );
+  return res?.data ?? {};
 };

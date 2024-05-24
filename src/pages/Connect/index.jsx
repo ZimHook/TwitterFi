@@ -148,7 +148,6 @@ const Connect = () => {
   useEffect(() => {
     setLoading(true);
     const jwt = localStorage.getItem("twitterfi_jwt");
-    console.log("aaa", jwt);
     if (jwt) {
       getUserinfo();
     } else {

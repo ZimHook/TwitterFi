@@ -2,6 +2,7 @@ import { Button, Input, message } from "antd";
 import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
 import { getAiTweet, getPostTags, postTwitter } from "../../api";
+import HashtagOverview from "./HashtagOverview";
 
 const Tweet = () => {
   const [input, setInput] = useState("");
@@ -169,6 +170,7 @@ const Tweet = () => {
           </div>
         </div>
       </div>
+      <HashtagOverview tags={tags}/>
     </div>
   );
 };
