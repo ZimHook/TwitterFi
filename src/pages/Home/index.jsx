@@ -1,8 +1,8 @@
 import { useStateStore } from "../../context";
 import Tweet from "../Tweet";
 import Connect from "../Connect";
-import { useEffect, useState, Fragment } from "react";
-import { obtainOauthAccessToken } from "../../utils/oauth1.ts";
+import { useEffect, useState } from "react";
+import ContentSquare from "../ContentSquare";
 
 const tabs = [
   {
@@ -13,7 +13,7 @@ const tabs = [
   {
     key: "contentSquare",
     label: "Content Square",
-    Component: Fragment,
+    Component: ContentSquare,
   },
 ];
 

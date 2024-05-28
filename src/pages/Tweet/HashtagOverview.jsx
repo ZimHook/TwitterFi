@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
 import { TwitterIcon } from "../../components/icon";
-import { getTagHistory } from "../../api";
+import * as echarts from "echarts";
 
 const HashtagOverview = ({ tags = [] }) => {
   const [date, setDate] = useState();
@@ -17,19 +17,40 @@ const HashtagOverview = ({ tags = [] }) => {
   }, []);
 
   useEffect(() => {
-    if(!activeTag) return
-    const queryTagsHistory = async() => {
-      const data = await getTagHistory(activeTag.content)
-      console.log('aaa', data)
-    }  
-    queryTagsHistory()
-  }, [activeTag])
-
-  useEffect(() => {
     if (!activeTag && tags[0]) {
       setActiveTag(tags[0]);
     }
   }, [tags, activeTag]);
+
+  useEffect(() => {
+    const container = document.getElementById("tag_chart");
+    if (activeTag?.twitter_tag_counts_daily?.length && container) {
+      const myChart = echarts.init(container);
+      myChart.setOption({
+        tooltip: {
+          show: true,
+          trigger: 'axis',
+        },
+        xAxis: {
+          type: "category",
+          data: activeTag.twitter_tag_counts_daily.map(item => item.date || '-'),
+          show: false
+        },
+        yAxis: {
+          type: "value",
+          show: false,
+        },
+        series: [
+          {
+            data: activeTag.twitter_tag_counts_daily.map(item => item.total_count || 0),
+            type: "line",
+            smooth: true,
+          },
+        ],
+        color: '#03FFF8',
+      });
+    }
+  }, [activeTag]);
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -144,8 +165,13 @@ const HashtagOverview = ({ tags = [] }) => {
           >
             <TwitterIcon style={{ width: 60, height: 60, color: "#03FFF9" }} />
             <div>
-              <div style={{color: '#03fff9', fontSize: 16, marginBottom: 8}}>Total Tweets</div>
-              <div>{activeTag?.tweet_count?.toLocaleString?.()}<span></span></div>
+              <div style={{ color: "#03fff9", fontSize: 16, marginBottom: 8 }}>
+                Total Tweets
+              </div>
+              <div>
+                {activeTag?.tweet_count?.toLocaleString?.()}
+                <span></span>
+              </div>
             </div>
           </div>
         </div>
@@ -156,7 +182,9 @@ const HashtagOverview = ({ tags = [] }) => {
             width: "35%",
             borderRadius: 24,
           }}
-        ></div>
+        >
+          <div id="tag_chart" style={{ width: "100%", height: "100%" }}></div>
+        </div>
       </div>
     </div>
   );

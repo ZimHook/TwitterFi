@@ -124,17 +124,33 @@ export const getAiTweet = async (tag) => {
   return res;
 };
 
-export const getTagHistory = async (tag_content) => {
-  const res = await axios.post(
-    "https://api.tweetfi.cc/api/twitters/v2/tag_count_history",
-    { tag_content },
+export const getRecentTwitter = async () => {
+  const res = await axios.get(
+    "https://api.tweetfi.cc/api/main/twitter_history",
     {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: "Bearer " + getJwt(),
       },
+      timeout: 0,
     }
   );
-  return res?.data ?? {};
+  return res;
+};
+
+export const tipTweet = async (fee, twitter_id) => {
+  const res = await axios.post(
+    "https://api.tweetfi.cc/api/twitters/v2/tip",
+    { fee, twitter_id },
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + getJwt(),
+      },
+      timeout: 0,
+    }
+  );
+  return res;
 };

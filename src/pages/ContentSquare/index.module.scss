@@ -1,0 +1,11 @@
+.input{
+  input{
+    &::placeholder{
+      color: #03FFF988 !important;
+    }
+  }
+  &::placeholder{
+    color: #03FFF988 !important;
+    font-size: 14px;
+  }
+}
