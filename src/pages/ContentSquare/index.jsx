@@ -1,46 +1,116 @@
-import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Input } from "antd";
+import {
+  InfoCircleOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { Button, Input, message } from "antd";
 import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
-import { getRecentTwitter, tipTweet } from "../../api";
+import { searchTweet, tipTweet } from "../../api";
+import dayjs from "dayjs";
 
-const TweetContent = ({tweet, tipValue}) => {
+const TweetContent = ({ tweet, tipValue }) => {
+  const [loading, setLoading] = useState(false);
 
   const tip = () => {
-    tipTweet(tipValue, tweet?.user?.twitter)
-  }
+    if (!Number(tipValue)) {
+      message.info("Please Enter Valid Amount First");
+      return;
+    }
+    setLoading(true);
+    tipTweet(Number(tipValue), Number(tweet?.tweet_id))
+      .then(() => {
+        message.success("tip success");
+      })
+      .catch(console.log)
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
-  return <div style={{height: 300, width:  '100%'}}>
-    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-      <div>{tweet?.user?.user_name}</div>
-      <Button type="primary" style={{borderRadius: '20px', height: 40, width: 100, fontSize: 20}} onClick={tip}>Tip</Button>
+  return (
+    <div style={{ height: "fit-content", padding: "24px 0", width: "100%" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ fontSize: 20, fontWeight: 700, color: "#03fff9" }}>
+          {tweet?.user?.user_name}
+          <span
+            style={{
+              fontSize: 14,
+              color: "#aaa",
+              fontWeight: 400,
+              marginLeft: 12,
+            }}
+          >
+            {dayjs(tweet?.created_at).format("YYYY-MM-DD HH:mm:ss")}
+          </span>
+        </div>
+        <Button
+          type="primary"
+          style={{ borderRadius: "20px", height: 40, width: 100, fontSize: 20 }}
+          onClick={tip}
+          loading={loading}
+        >
+          Tip
+        </Button>
+      </div>
+      <div>{tweet?.content}</div>
     </div>
-    <div>{tweet?.twitter_text}</div>
-  </div>
-}
+  );
+};
 
 const ContentSquare = () => {
   const [tipValue, setTipValue] = useState("");
-  const [recentTwitter, setRecentTwitter] = useState([])
+  const [recentTwitter, setRecentTwitter] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const handleTweetSearch = (search) => {
+    if (searchLoading) return;
+    setSearchLoading(true);
+    searchTweet(search)
+      .then((res) => {
+        setRecentTwitter(res?.data?.data)
+      })
+      .catch(console.log)
+      .finally(() => {
+        setSearchLoading(false);
+      });
+  };
 
   useEffect(() => {
-    getRecentTwitter().then(res => {
-      setRecentTwitter(res?.data?.data?.data ?? [])
-    })
-  }, [])
+    searchTweet()
+      .then((res) => {
+        setRecentTwitter(res?.data?.data ?? []);
+      })
+      .catch(console.log);
+  }, []);
 
   return (
     <div style={{ padding: "24px 48px" }}>
       <Input
         prefix={
-          <SearchOutlined
+          <div
             style={{
-              fontSize: 20,
-              paddingRight: 12,
               marginRight: 12,
-              borderRight: "1px solid #03FFF9",
+              paddingRight: 12,
+              borderRight: "1px solid #03fff9",
             }}
-          />
+          >
+            {!searchLoading ? (
+              <SearchOutlined
+                style={{
+                  fontSize: 20,
+                }}
+              />
+            ) : (
+              <LoadingOutlined size={20} />
+            )}
+          </div>
         }
         style={{
           borderRadius: 40,
@@ -51,6 +121,11 @@ const ContentSquare = () => {
         }}
         placeholder="search twitter"
         className={styles.input}
+        onKeyUp={(e) => {
+          if (e.code === "Enter") {
+            handleTweetSearch(e.target.value);
+          }
+        }}
       />
       <div
         style={{
@@ -179,7 +254,7 @@ const ContentSquare = () => {
             </div>
           </div>
           <div style={{ color: "#03fff9", marginTop: 24, fontSize: 14 }}>
-            <InfoCircleOutlined style={{marginRight: 4}}/>
+            <InfoCircleOutlined style={{ marginRight: 4 }} />
             Note:{" "}
             <span style={{ color: "#fff" }}>
               10% of the tip amount will be burned
@@ -193,11 +268,15 @@ const ContentSquare = () => {
             borderRadius: 48,
             flexGrow: 0,
             flexShrink: 0,
-            padding: '48px 96px'
+            padding: "48px 96px",
+            overflow: "scroll",
+            height: "100%",
           }}
         >
           {recentTwitter.map((tweet, index) => {
-            return <TweetContent tweet={tweet} key={index}/>
+            return (
+              <TweetContent tweet={tweet} tipValue={tipValue} key={index} />
+            );
           })}
         </div>
       </div>
