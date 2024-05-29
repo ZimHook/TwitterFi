@@ -6,11 +6,32 @@ import {
 import { Button, Input, message } from "antd";
 import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
-import { searchTweet, tipTweet } from "../../api";
+import { searchTweet, tipTweet, queryUser } from "../../api";
 import dayjs from "dayjs";
+import { useDispatchStore, useStateStore } from "../../context";
 
 const TweetContent = ({ tweet, tipValue }) => {
   const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatchStore();
+
+  const getUserinfo = async () => {
+    try {
+      const res = await queryUser();
+      if (res?.data) {
+        dispatch({
+          type: "setUserinfo",
+          userinfo: {
+            ...(res?.data?.twitter ?? {}),
+            ...(res?.data?.user ?? {}),
+            connected: true,
+          },
+        });
+      }
+    } catch (message) {
+      return console.log(message);
+    }
+  };
 
   const tip = () => {
     if (!Number(tipValue)) {
@@ -18,9 +39,14 @@ const TweetContent = ({ tweet, tipValue }) => {
       return;
     }
     setLoading(true);
-    tipTweet(Number(tipValue), Number(tweet?.tweet_id))
-      .then(() => {
-        message.success("tip success");
+    tipTweet(Number(tipValue), tweet?.tweet_id)
+      .then(async (res) => {
+        if (res?.data?.code === 200) {
+          await getUserinfo();
+          message.success("tip success");
+        } else {
+          message.error(res?.data?.data?.message);
+        }
       })
       .catch(console.log)
       .finally(() => {
@@ -69,12 +95,14 @@ const ContentSquare = () => {
   const [recentTwitter, setRecentTwitter] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
+  const { userinfo } = useStateStore();
+
   const handleTweetSearch = (search) => {
     if (searchLoading) return;
     setSearchLoading(true);
     searchTweet(search)
       .then((res) => {
-        setRecentTwitter(res?.data?.data)
+        setRecentTwitter(res?.data?.data);
       })
       .catch(console.log)
       .finally(() => {
@@ -160,7 +188,10 @@ const ContentSquare = () => {
               Total Amount For Tip
             </div>
             <div style={{ fontSize: 36, color: "#03FFF9", fontWeight: 700 }}>
-              3000<span style={{ color: "#326bfb", marginLeft: 24 }}>TEF</span>
+              {parseInt(
+                userinfo?.user_accounts?.[0]?.balance ?? 0
+              )?.toLocaleString?.()}
+              <span style={{ color: "#326bfb", marginLeft: 24 }}>TEF</span>
             </div>
           </div>
           <Input
