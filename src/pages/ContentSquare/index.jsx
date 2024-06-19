@@ -61,8 +61,11 @@ const TweetContent = ({ tweet, tipValue }) => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          marginBottom: 12,
         }}
       >
+        <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+        {tweet?.user?.twitter_avatar ? <img src={tweet?.user?.twitter_avatar} alt="" style={{width: 40, height: 40, borderRadius: '50%', border: '1px solid #03fff9'}}/> : null}
         <div style={{ fontSize: 20, fontWeight: 700, color: "#03fff9" }}>
           {tweet?.user?.user_name}
           <span
@@ -76,6 +79,7 @@ const TweetContent = ({ tweet, tipValue }) => {
             {dayjs(tweet?.created_at).format("YYYY-MM-DD HH:mm:ss")}
           </span>
         </div>
+        </div>
         <Button
           type="primary"
           style={{ borderRadius: "20px", height: 40, width: 100, fontSize: 20 }}
@@ -85,7 +89,10 @@ const TweetContent = ({ tweet, tipValue }) => {
           Tip
         </Button>
       </div>
-      <div>{tweet?.content}</div>
+      <div style={{marginBottom: 12}}>{tweet?.content}</div>
+      <div style={{color: '#1EA1F1', fontSize: 12,cursor: 'pointer'}} onClick={() => {
+        window.open('https://x.com/' + tweet?.user?.user_name + '/status/' + tweet.tweet_id)
+      }}>Show This Tweet</div>
     </div>
   );
 };

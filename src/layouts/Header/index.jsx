@@ -1,8 +1,25 @@
 import styles from "./index.module.scss";
 import { useNavigate } from "react-router-dom";
-import { Button, Popover } from "antd";
-import { UserOutlined } from "@ant-design/icons";
-import { useStateStore } from "../../context";
+import { Button, Popover, message } from "antd";
+import { LoadingOutlined, UserOutlined } from "@ant-design/icons";
+import { useDispatchStore, useStateStore } from "../../context";
+import { shortenAddress } from "../../utils/shortenAddress";
+import {
+  register,
+  twitterRequestToken,
+  twitterAccessToken,
+  queryUser,
+  bindWallet,
+  reigster,
+} from "../../api/index.js";
+import {
+  TonConnectButton,
+  useTonAddress,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react";
+import { openWindow } from "../../utils/window.js";
+import { useState } from "react";
 
 const navConfig = [
   {
@@ -19,7 +36,96 @@ const navConfig = [
 
 const Header = () => {
   const { userinfo } = useStateStore();
+  const { connected } = userinfo;
+  const dispatch = useDispatchStore();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [tonConnectUI] = useTonConnectUI();
+
+  const connectWallet = () => {
+    tonConnectUI
+      .disconnect()
+      .then(console.log)
+      .catch(console.log)
+      .finally(() => {
+        tonConnectUI.openModal();
+      });
+  };
+
+  const getUserinfo = async () => {
+    await queryUser()
+      .then((res) => {
+        if (res?.data) {
+          dispatch({
+            type: "setUserinfo",
+            userinfo: {
+              ...(res?.data?.twitter ?? {}),
+              ...(res?.data?.user ?? {}),
+              connected: true,
+            },
+          });
+        }
+      })
+      .catch(console.log)
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const linkTwitter = async () => {
+    setLoading(true);
+    try {
+      const requestTokenResult = await twitterRequestToken({
+        callbackUrl: `${window.location.origin}/twitter_auth_callback`,
+      });
+      if (requestTokenResult?.data?.request_token) {
+        const url = `https://api.twitter.com/oauth/authorize?oauth_token=${requestTokenResult.data.request_token}`;
+        const popup = openWindow({ url, name: "Auth Twitter" });
+        const authResult = await new Promise((resolve) => {
+          const twitterAuthKey = "twitter_auth_tmp_data";
+          const interval = setInterval(function () {
+            if (popup.closed) {
+              clearInterval(interval);
+              resolve({ errMsg: "Canceled by user" });
+            }
+          }, 500);
+          const checkTwitterAuthed = () => {
+            const authData = localStorage.getItem(twitterAuthKey);
+            if (!authData) return;
+            clearInterval(interval);
+            localStorage.removeItem(twitterAuthKey);
+            window.removeEventListener("storage", checkTwitterAuthed);
+            popup?.close();
+            resolve(JSON.parse(authData));
+          };
+          window.addEventListener("storage", checkTwitterAuthed);
+        });
+        if (authResult.errMsg) {
+          message.error(authResult.errMsg);
+        } else {
+          const accessTokenResult = await twitterAccessToken({
+            request_token: authResult.oauth_token,
+            oauth_verifier: authResult.oauth_verifier,
+          });
+          const accessToken = accessTokenResult?.data?.access_token;
+          if (accessToken) {
+            // localStorage.setItem("twitterfi_access_token", accessToken);
+            const userinfo = await reigster({ access_token: accessToken });
+            localStorage.setItem("twitterfi_jwt", userinfo?.data?.token);
+            await getUserinfo();
+          } else {
+            message.error("Access Token Failed");
+          }
+        }
+      } else {
+        message.error("Request Token Failed");
+      }
+    } catch (err) {
+      message.error("twitter auth failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={styles.header}>
@@ -54,58 +160,77 @@ const Header = () => {
         {userinfo.screen_name ? (
           <Popover
             title={
-              <div style={{ width: 240, padding: 12 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: "#000" }}>
-                    Address
+              <>
+                <div style={{ width: 240, padding: 12 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: "#000" }}>
+                      Address
+                    </div>
+                    <div
+                      style={{
+                        color: "#8c8c8c",
+                        maxWidth: 100,
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {shortenAddress(userinfo.address)}
+                    </div>
                   </div>
                   <div
                     style={{
-                      color: "#8c8c8c",
-                      maxWidth: 100,
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
                     }}
                   >
-                    {userinfo.address}
+                    <div style={{ fontWeight: 700, color: "#000" }}>
+                      Twitter
+                    </div>
+                    <div
+                      style={{
+                        color: "#8c8c8c",
+                        maxWidth: 100,
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {userinfo.screen_name}
+                    </div>
                   </div>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
+                <Button
+                  style={{ width: "100%" }}
+                  onClick={() => {
+                    localStorage.removeItem("twitterfi_jwt");
+                    dispatch({
+                      type: "setUserinfo",
+                      userinfo: {
+                        connected: false,
+                      },
+                    });
                   }}
                 >
-                  <div style={{ fontWeight: 700, color: "#000" }}>
-                    Twitter
-                  </div>
-                  <div
-                    style={{
-                      color: "#8c8c8c",
-                      maxWidth: 100,
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {userinfo.screen_name}
-                  </div>
-                </div>
-              </div>
+                  LOG OUT
+                </Button>
+              </>
             }
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              {userinfo.screen_name}
+              <div>
+                <span style={{ color: "#03FFF9" }}>Hi,&nbsp;</span>
+                {userinfo.screen_name}
+              </div>
               <div
                 style={{
                   width: 36,
@@ -137,10 +262,10 @@ const Header = () => {
           <div
             className={styles.login_btn}
             onClick={() => {
-              navigate("/");
+              connected ? connectWallet() : linkTwitter();
             }}
           >
-            Login
+            {loading && <LoadingOutlined style={{ marginRight: 6 }} />}Login
           </div>
         )}
       </div>

@@ -81,7 +81,10 @@ export const bindWallet = (body) => {
   });
 };
 
-export const postTwitter = async (tweet, tag, tag_id) => {
+export const postTwitter = async (tweet, tag, tag_id, images) => {
+  if(images.length){
+    return postTwitterWithImages(tweet, tag, tag_id, images)
+  }
   const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tweet", {
     method: "POST",
     headers: {
@@ -90,6 +93,25 @@ export const postTwitter = async (tweet, tag, tag_id) => {
       Authorization: "Bearer " + getJwt(),
     },
     body: JSON.stringify({ message: tweet, tag, tag_id }),
+  });
+  const data = await res.json();
+  return data?.data;
+};
+export const postTwitterWithImages = async (tweet, tag, tag_id, images) => {
+  const formData = new FormData();
+  formData.append("message", tweet)
+  formData.append("tag", tag)
+  formData.append("tag_id", tag_id)
+  images.forEach((image) => {
+    formData.append("files", image)
+  })
+  const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tweet_medias", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      Authorization: "Bearer " + getJwt(),
+    },
+    body: formData,
   });
   const data = await res.json();
   return data?.data;
