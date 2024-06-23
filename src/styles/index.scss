@@ -14,3 +14,9 @@ body{
 div{
   box-sizing: border-box;
 }
+
+.input-placeholder{
+  &::placeholder{
+    color: #C9D2D988 !important;
+  }
+}

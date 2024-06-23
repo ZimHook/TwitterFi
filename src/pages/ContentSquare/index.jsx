@@ -3,7 +3,7 @@ import {
   LoadingOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Input, message } from "antd";
+import { Button, Input, message, Image } from "antd";
 import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
 import { searchTweet, tipTweet, queryUser } from "../../api";
@@ -90,6 +90,9 @@ const TweetContent = ({ tweet, tipValue }) => {
         </Button>
       </div>
       <div style={{marginBottom: 12}}>{tweet?.content}</div>
+      {tweet?.media_urls?.length ? <div style={{marginBottom: 12, display: 'grid', gridTemplateColumns: '50% 50%', gap: 4}}>{tweet?.media_urls?.map?.(img => {
+        return <Image src={img} style={{objectFit: 'cover', height: 240}}></Image>
+      })}</div> : null}
       <div style={{color: '#1EA1F1', fontSize: 12,cursor: 'pointer'}} onClick={() => {
         window.open('https://x.com/' + tweet?.user?.user_name + '/status/' + tweet.tweet_id)
       }}>Show This Tweet</div>

@@ -3,6 +3,7 @@ import Tweet from "../Tweet";
 import Connect from "../Connect";
 import { useEffect, useState } from "react";
 import ContentSquare from "../ContentSquare";
+import PersonalCenter from "../PersonalCenter";
 
 const tabs = [
   {
@@ -14,6 +15,11 @@ const tabs = [
     key: "contentSquare",
     label: "Content Square",
     Component: ContentSquare,
+  },
+  {
+    key: "personalCenter",
+    label: "Personal center",
+    Component: PersonalCenter,
   },
 ];
 
@@ -44,6 +50,7 @@ const Home = () => {
                 cursor: 'pointer',
                 minWidth: '180px',
                 textAlign: 'center',
+                marginLeft: tab.key === 'personalCenter' ? 'auto' : '0'
               }}
               onClick={() => {
                 setActiveTab(tab);

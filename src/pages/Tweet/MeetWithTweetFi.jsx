@@ -130,6 +130,7 @@ const MeetWithTweetFi = () => {
           </div>
           <div style={{background: '#000', width: '100%', height: 64, borderRadius:16, marginTop: 24, textAlign: 'center', padding: 12}}>
             <div style={{color: '#fff'}}>{userinfo.screen_name}</div>
+            <div style={{color: '#aaa', fontSize: 12, marginTop: 4}}>{userinfo.twitter_bio}</div>
           </div>
         </div>
       </div>

@@ -57,7 +57,7 @@ const Tweet = () => {
         selectedTags.id,
         images
       );
-      if (res?.message?.include("succ")) {
+      if (res?.message?.includes("succ")) {
         message.success("Tweet Posted");
       } else {
         message.error(res?.message);
