@@ -3,6 +3,7 @@ import Layout from "./layouts";
 import Home from "./pages/Home";
 import Docs from "./pages/Docs"
 import TwitterAuthCallback from "./pages/TwitterAuthCallback";
+import Invest from "./pages/Invest";
 
 const routes = [
   {
@@ -20,6 +21,10 @@ const routes = [
       {
         path: "docs",
         element: <Docs />,
+      },
+      {
+        path: "invest",
+        element: <Invest />,
       },
       {
         path: "twitter_auth_callback",

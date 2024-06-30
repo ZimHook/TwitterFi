@@ -31,6 +31,8 @@
       }
       .link_item{
         cursor: pointer;
+        display: flex;
+        align-items: center;
         :global .anticon{
           color: #03fffb;
           margin-right: 6px;

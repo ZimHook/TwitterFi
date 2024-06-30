@@ -1,3 +1,4 @@
+import { TelegramIcon } from "../../components/icon";
 import styles from "./index.module.scss";
 import { XOutlined } from "@ant-design/icons";
 
@@ -5,15 +6,25 @@ const linksConfig = [
   {
     title: "Community",
     links: [
-      { link: "https://x.com", icon: <XOutlined />, label: "Twitter" },
-      { link: "https://telegram.com", icon: <XOutlined />, label: "Telegram" },
-    ],
-  },
-  {
-    title: "Community",
-    links: [
-      { link: "https://x.com", icon: <XOutlined />, label: "Twitter" },
-      { link: "https://telegram.com", icon: <XOutlined />, label: "Telegram" },
+      {
+        link: "https://twitter.com/tweetfi_office",
+        icon: <XOutlined />,
+        label: "Twitter",
+      },
+      {
+        link: "https://t.me/tweetficommunity",
+        icon: (
+          <TelegramIcon
+            style={{
+              color: "#03FFFB",
+              width: "18px",
+              height: "18px",
+              marginRight: 4,
+            }}
+          />
+        ),
+        label: "Telegram",
+      },
     ],
   },
 ];
