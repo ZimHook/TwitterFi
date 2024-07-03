@@ -82,8 +82,8 @@ export const bindWallet = (body) => {
 };
 
 export const postTwitter = async (tweet, tag, tag_id, images) => {
-  if(images.length){
-    return postTwitterWithImages(tweet, tag, tag_id, images)
+  if (images.length) {
+    return postTwitterWithImages(tweet, tag, tag_id, images);
   }
   const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tweet", {
     method: "POST",
@@ -99,20 +99,23 @@ export const postTwitter = async (tweet, tag, tag_id, images) => {
 };
 export const postTwitterWithImages = async (tweet, tag, tag_id, images) => {
   const formData = new FormData();
-  formData.append("message", tweet)
-  formData.append("tag", tag)
-  formData.append("tag_id", tag_id)
+  formData.append("message", tweet);
+  formData.append("tag", tag);
+  formData.append("tag_id", tag_id);
   images.forEach((image) => {
-    formData.append("files", image)
-  })
-  const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tweet_medias", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      Authorization: "Bearer " + getJwt(),
-    },
-    body: formData,
+    formData.append("files", image);
   });
+  const res = await fetch(
+    "https://api.tweetfi.cc/api/twitters/v2/tweet_medias",
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + getJwt(),
+      },
+      body: formData,
+    }
+  );
   const data = await res.json();
   return data?.data;
 };
@@ -165,6 +168,22 @@ export const tipTweet = async (fee, twitter_id) => {
 export const searchTweet = async (search = "") => {
   const res = await axios.get(
     "https://api.tweetfi.cc/api/main/twitter_history?search=" + search,
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + getJwt(),
+      },
+      timeout: 0,
+    }
+  );
+  return res?.data;
+};
+
+export const bindRefCode = async (ref_code) => {
+  const res = await axios.post(
+    "https://api.tweetfi.cc/api/twitters/set_ref_code",
+    { ref_code },
     {
       headers: {
         Accept: "application/json",

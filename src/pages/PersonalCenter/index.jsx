@@ -11,6 +11,8 @@ import {
   InfoIcon,
   SyncIcon,
 } from "../../components/icon";
+import { useState } from "react";
+import BindCode from "../../components/BindCode";
 
 const InfoPanel = () => {
   return (
@@ -206,6 +208,12 @@ const InfoPanel = () => {
 };
 
 const StakePanel = () => {
+  const [bindRefModalOpen, setBindRefModalOpen] = useState(false);
+
+  const handleStake = () => {
+    setBindRefModalOpen(true);
+  };
+
   return (
     <div
       style={{
@@ -318,6 +326,7 @@ const StakePanel = () => {
             fontWeight: 700,
           }}
           type="primary"
+          onClick={handleStake}
         >
           Staking Now
         </Button>
@@ -378,6 +387,12 @@ const StakePanel = () => {
           Claim
         </Button>
       </div>
+      <BindCode
+        open={bindRefModalOpen}
+        onSuccess={(wallet) => {
+          setBindRefModalOpen(false);
+        }}
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import styles from "./index.module.scss";
 import { useNavigate } from "react-router-dom";
 import { Button, Popover, message } from "antd";
-import { LoadingOutlined, UserOutlined } from "@ant-design/icons";
+import { CopyOutlined, LoadingOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatchStore, useStateStore } from "../../context";
 import { shortenAddress } from "../../utils/shortenAddress";
 import {
@@ -176,13 +176,15 @@ const Header = () => {
                     <div
                       style={{
                         color: "#8c8c8c",
-                        maxWidth: 100,
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
                       }}
                     >
                       {shortenAddress(userinfo.address)}
+                      <CopyOutlined
+                        onClick={() => {
+                          message.success("Address copied");
+                          navigator.clipboard.writeText(userinfo.address);
+                        }}
+                      />
                     </div>
                   </div>
                   <div
@@ -208,6 +210,35 @@ const Header = () => {
                       {userinfo.screen_name}
                     </div>
                   </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: "#000" }}>
+                      Referral code
+                    </div>
+                    <div
+                      style={{
+                        color: "#8c8c8c",
+                        maxWidth: 100,
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {userinfo.ref_code}
+                      <CopyOutlined
+                        onClick={() => {
+                          message.success("Referral code copied");
+                          navigator.clipboard.writeText(userinfo.ref_code);
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <Button
                   style={{ width: "100%" }}
@@ -227,9 +258,12 @@ const Header = () => {
             }
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div>
-                <span style={{ color: "#03FFF9" }}>Hi,&nbsp;</span>
-                {userinfo.screen_name}
+              <div style={{ textAlign: "center", color: "#fff", fontSize: 14 }}>
+                <div>
+                  <span style={{ color: "#03FFF9" }}>Hi,&nbsp;</span>
+                  {userinfo.screen_name}
+                </div>
+                <div>AccountLevel: {userinfo?.level ?? "-"}</div>
               </div>
               <div
                 style={{

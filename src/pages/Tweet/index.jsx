@@ -13,6 +13,7 @@ import {
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import MeetWithTweetFi from "./MeetWithTweetFi";
 import { useStateStore } from "../../context";
+import InvestBanner from '../Invest/InvestBanner'
 
 const Tweet = () => {
   const [input, setInput] = useState("");
@@ -117,8 +118,9 @@ const Tweet = () => {
           🔥Post a tweet and add today's hot tag to get an airdrop reward🔥
         </span>
       </div>
+      <InvestBanner />
       <div
-        style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}
+        style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBlock: 24 }}
       >
         {tags.map((tag, index) => {
           const active = selectedTags?.id === tag.id;
