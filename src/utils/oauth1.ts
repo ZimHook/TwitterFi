@@ -1,4 +1,4 @@
-import { requestTokenSignature, accessTokenSignature } from "./signature.ts";
+import { requestTokenSignature, accessTokenSignature } from "./signature";
 
 interface RequestTokenResponse {
   oauth_token: string;

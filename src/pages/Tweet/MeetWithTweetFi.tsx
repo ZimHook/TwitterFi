@@ -1,18 +1,70 @@
 import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons";
 import { useStateStore } from "../../context";
-import { Button, Tooltip } from "antd";
-import { useTwettfiContract } from "../../context/useTwettfiContract.ts";
-import { useEffect } from "react";
+import { Button, Tooltip, message } from "antd";
+import { useTwettfiContract } from "../../context/useTwettfiContract";
+import { useEffect, useState } from "react";
+import { useSender } from "@/context/useSender";
+import { claimProof } from "@/api";
+import { Address, toNano } from "@ton/core";
+import { createProofCells } from "@/utils/createCell";
+import { TweetMint } from "@/api/TweetFi";
 
 const MeetWithTweetFi = () => {
   const { userinfo } = useStateStore();
-  console.log("aaa", userinfo);
+  const { sender } = useSender();
+  const tweetfi = useTwettfiContract();
 
-  const {getCanMintAmount} = useTwettfiContract()
+  const [claimLoading, setClaimLoading] = useState(false);
 
-  useEffect(() => {
-    getCanMintAmount()?.then(console.log)
-  },[getCanMintAmount])
+  const handleClaim = async () => {
+    try {
+      const proofList = await claimProof();
+      const proof = proofList.data?.data?.find?.(
+        (item) => item?.user?.address === userinfo.address
+      );
+      if (!proof) {
+        throw new Error("no proof found");
+      }
+      const cellData = JSON.parse(proof.proof)?.[0];
+      const args = {
+        $$type: "TweetMint",
+        index: BigInt(parseInt(proof.id)),
+        to: Address.parse(userinfo.address),
+        amount: BigInt(parseInt(proof.amount)),
+        proof: createProofCells([
+          [
+            BigInt(parseInt(cellData.hash)),
+            cellData.position === "right" ? 0 : 1,
+          ],
+        ]),
+        proof_length: 1n,
+        to_str: userinfo.address,
+      } as TweetMint;
+      console.log("aaa", args, proof);
+      tweetfi.send(sender, { value: toNano(0.05) }, args);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // useEffect(() => {
+  //   tweetfi
+  //     ?.send?.(sender, {value: , }, {
+  //       $$type: 'TweetMint',
+  //       index: bigint,
+  //   to: userinfo.address,
+  //   amount: bigint,
+  //   proof: Cell,
+  //   proof_length: bigint,
+  //   to_str: String,
+  //     })
+  //     ?.then((res) => {
+  //       console.log("aaa123", res);
+  //     })
+  //     .catch((err) => {
+  //       console.log("error", err);
+  //     });
+  // }, [tweetfi]);
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -103,6 +155,8 @@ const MeetWithTweetFi = () => {
               fontWeight: 700,
               borderRadius: 16,
             }}
+            onClick={handleClaim}
+            loading={claimLoading}
           >
             Claim Token
           </Button>
@@ -133,12 +187,31 @@ const MeetWithTweetFi = () => {
               marginTop: 24,
             }}
           />
-          <div style={{ color: "#00FEFA", fontSize: 18, fontWeight: 700, marginTop: 32 }}>
+          <div
+            style={{
+              color: "#00FEFA",
+              fontSize: 18,
+              fontWeight: 700,
+              marginTop: 32,
+            }}
+          >
             @{userinfo.user_name}
           </div>
-          <div style={{background: '#000', width: '100%', height: 64, borderRadius:16, marginTop: 24, textAlign: 'center', padding: 12}}>
-            <div style={{color: '#fff'}}>{userinfo.screen_name}</div>
-            <div style={{color: '#aaa', fontSize: 12, marginTop: 4}}>{userinfo.twitter_bio}</div>
+          <div
+            style={{
+              background: "#000",
+              width: "100%",
+              height: 64,
+              borderRadius: 16,
+              marginTop: 24,
+              textAlign: "center",
+              padding: 12,
+            }}
+          >
+            <div style={{ color: "#fff" }}>{userinfo.screen_name}</div>
+            <div style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>
+              {userinfo.twitter_bio}
+            </div>
           </div>
         </div>
       </div>

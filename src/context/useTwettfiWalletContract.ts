@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { TweetFiWallet } from "../api/TweetFiWallet.ts";
-import { useTonClient } from "./useTonClient.ts";
-import { useAsyncInitialize } from "./useAsyncInitialize.ts";
+import { TweetFiWallet } from "../api/TweetFiWallet";
+import { useTonClient } from "./useTonClient";
+import { useAsyncInitialize } from "./useAsyncInitialize";
 import { Address, OpenedContract } from "@ton/core";
 
 export function useTwettfiWalletContract({address}: {address: string}) {

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { TweetFi } from "../api/TweetFi.ts";
-import { useTonClient } from "./useTonClient.ts";
-import { useAsyncInitialize } from "./useAsyncInitialize.ts";
+import { TweetFi } from "@/api/TweetFi";
+import { useTonClient } from "./useTonClient";
+import { useAsyncInitialize } from "./useAsyncInitialize";
 import { Address, OpenedContract } from "@ton/core";
-import { useSender } from "./useSender.ts";
+import { useSender } from "./useSender";
 
 export function useTwettfiContract() {
   const client = useTonClient();
@@ -39,8 +39,5 @@ export function useTwettfiContract() {
   //   getValue();
   // }, [tweetfiContract]);
 
-  return {
-    getCanMintAmount: tweetfiContract?.getBalance
-    // address: tweetfiContract?.address.toString(),
-  };
+  return tweetfiContract
 }

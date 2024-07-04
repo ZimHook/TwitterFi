@@ -1,4 +1,5 @@
 import axios from "axios";
+import { request } from "./axios";
 
 const bodyToUrlParams = (body) => {
   let urlParams = "?";
@@ -134,64 +135,28 @@ export const getPostTags = async () => {
 };
 
 export const getAiTweet = async (tag) => {
-  const res = await axios.post(
-    "https://api.tweetfi.cc/api/twitters/v2/ai_message",
-    { message: "Please generate a tweet about" + tag },
-    {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + getJwt(),
-      },
-      timeout: 0,
-    }
-  );
+  const res = await request.post("/api/twitters/v2/ai_message", {
+    message: "Please generate a tweet about" + tag,
+  });
   return res;
 };
 
 export const tipTweet = async (fee, twitter_id) => {
-  const res = await axios.post(
-    "https://api.tweetfi.cc/api/twitters/v2/tip",
-    { fee, twitter_id },
-    {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + getJwt(),
-      },
-      timeout: 0,
-    }
-  );
+  const res = await request.post("/api/twitters/v2/tip", { fee, twitter_id });
   return res;
 };
 
 export const searchTweet = async (search = "") => {
-  const res = await axios.get(
-    "https://api.tweetfi.cc/api/main/twitter_history?search=" + search,
-    {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + getJwt(),
-      },
-      timeout: 0,
-    }
-  );
-  return res?.data;
+  const res = await request.get("/api/main/twitter_history?search=" + search);
+  return res;
 };
 
 export const bindRefCode = async (ref_code) => {
-  const res = await axios.post(
-    "https://api.tweetfi.cc/api/twitters/set_ref_code",
-    { ref_code },
-    {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + getJwt(),
-      },
-      timeout: 0,
-    }
-  );
-  return res?.data;
+  const res = await request.post("/api/twitters/set_ref_code", { ref_code });
+  return res;
 };
+
+export const claimProof = async() => {
+  const res = await request.get("/api/main/claim_proof");
+  return res
+}
