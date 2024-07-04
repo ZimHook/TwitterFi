@@ -19,6 +19,7 @@ import {
   useTonWallet,
 } from "@tonconnect/ui-react";
 import { generateStates } from "../../utils/binaryString.js";
+import { getUrlParams } from "../../utils/getUrlParams.js";
 
 const Step = (props) => {
   return (
@@ -44,6 +45,8 @@ const Connect = () => {
   const tonaddress = useTonAddress(true);
 
   const [loading, setLoading] = useState(false);
+
+  const ref_code = getUrlParams("ref");
 
   const linkTwitter = async () => {
     setLoading(true);

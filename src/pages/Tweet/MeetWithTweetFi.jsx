@@ -1,10 +1,18 @@
 import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons";
 import { useStateStore } from "../../context";
 import { Button, Tooltip } from "antd";
+import { useTwettfiContract } from "../../context/useTwettfiContract.ts";
+import { useEffect } from "react";
 
 const MeetWithTweetFi = () => {
   const { userinfo } = useStateStore();
   console.log("aaa", userinfo);
+
+  const {getCanMintAmount} = useTwettfiContract()
+
+  useEffect(() => {
+    getCanMintAmount()?.then(console.log)
+  },[getCanMintAmount])
 
   return (
     <div style={{ marginTop: 24 }}>

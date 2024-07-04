@@ -62,6 +62,7 @@ const renderRoutes = (routes) => {
 };
 
 const Router = () => {
+
   return (
     <BrowserRouter>
       <Routes>{renderRoutes(routes)}</Routes>

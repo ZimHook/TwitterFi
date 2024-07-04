@@ -179,12 +179,10 @@ const Header = () => {
                       }}
                     >
                       {shortenAddress(userinfo.address)}
-                      <CopyOutlined
-                        onClick={() => {
-                          message.success("Address copied");
-                          navigator.clipboard.writeText(userinfo.address);
-                        }}
-                      />
+                      <CopyOutlined onClick={() => {
+                        message.success("Address copied")
+                        navigator.clipboard.writeText(userinfo.address)
+                      }}/>
                     </div>
                   </div>
                   <div
@@ -219,7 +217,7 @@ const Header = () => {
                     }}
                   >
                     <div style={{ fontWeight: 700, color: "#000" }}>
-                      Referral code
+                    Referral code
                     </div>
                     <div
                       style={{
@@ -231,10 +229,33 @@ const Header = () => {
                       }}
                     >
                       {userinfo.ref_code}
+                      <CopyOutlined onClick={() => {
+                        message.success("Referral code copied")
+                        navigator.clipboard.writeText(userinfo.ref_code)
+                      }}/>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: "#000" }}>
+                      Referral link
+                    </div>
+                    <div
+                      style={{
+                        color: "#8c8c8c",
+                      }}
+                    >
+                      {shortenAddress(window.location.origin + '?ref=' + userinfo.ref_code)}
                       <CopyOutlined
                         onClick={() => {
                           message.success("Referral code copied");
-                          navigator.clipboard.writeText(userinfo.ref_code);
+                          navigator.clipboard.writeText(window.location.origin + '?ref=' + userinfo.ref_code);
                         }}
                       />
                     </div>
@@ -258,12 +279,14 @@ const Header = () => {
             }
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ textAlign: "center", color: "#fff", fontSize: 14 }}>
+              <div style={{textAlign: 'center', color: '#fff', fontSize: 14}}>
                 <div>
-                  <span style={{ color: "#03FFF9" }}>Hi,&nbsp;</span>
-                  {userinfo.screen_name}
+                <span style={{ color: "#03FFF9" }}>Hi,&nbsp;</span>
+                {userinfo.screen_name}
                 </div>
-                <div>AccountLevel: {userinfo?.level ?? "-"}</div>
+                <div>
+                  AccountLevel: {userinfo?.level ?? '-'}
+                </div>
               </div>
               <div
                 style={{
