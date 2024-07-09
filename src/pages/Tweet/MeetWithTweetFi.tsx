@@ -19,29 +19,24 @@ const MeetWithTweetFi = () => {
   const handleClaim = async () => {
     try {
       const proofList = await claimProof();
-      const proof = proofList.data?.data?.find?.(
-        (item) => item?.user?.address === userinfo.address
-      );
+      console.log('aaaa',proofList.data?.data )
+      const proof = proofList.data?.data?.find?.((item) => item?.user?.address === userinfo.address);
       if (!proof) {
         throw new Error("no proof found");
       }
-      const cellData = JSON.parse(proof.proof)?.[0];
+      const cellData = JSON.parse(proof.proof);
       const args = {
         $$type: "TweetMint",
         index: BigInt(parseInt(proof.id)),
         to: Address.parse(userinfo.address),
         amount: BigInt(parseInt(proof.amount)),
-        proof: createProofCells([
-          [
-            BigInt(parseInt(cellData.hash)),
-            cellData.position === "right" ? 0 : 1,
-          ],
-        ]),
-        proof_length: 1n,
+        proof: createProofCells(cellData),
+        proof_length: BigInt(cellData.length),
         to_str: userinfo.address,
       } as TweetMint;
       console.log("aaa", args, proof);
-      tweetfi.send(sender, { value: toNano(0.05) }, args);
+      const res = await tweetfi.send(sender, { value: toNano(0.1) }, args);
+      console.log('aaa res', res)
     } catch (err) {
       console.log(err);
     }

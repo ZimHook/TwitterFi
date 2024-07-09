@@ -6,7 +6,7 @@ import enUS from "antd/es/calendar/locale/en_US";
 function App() {
   return (
     <TonConnectUIProvider
-      manifestUrl={window.location.origin + "/tonconnect-manifest.json"}
+      manifestUrl={"https://tweetfi.io/tonconnect-manifest.json"}
     >
       <ConfigProvider locale={enUS}>
         <Router />
