@@ -13,8 +13,13 @@ import {
 } from "../../components/icon";
 import { useState } from "react";
 import BindCode from "../../components/BindCode";
+import { useStateStore } from "@/context";
+import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
 
 const InfoPanel = () => {
+
+  const {stake, loacked} = useTwettfiWalletContract()
+
   return (
     <div
       style={{
@@ -70,7 +75,7 @@ const InfoPanel = () => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 Total Staking Balance
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>Mock</div>
+              <div style={{ fontSize: 48, fontWeight: 700 }}>{stake}</div>
               <div
                 style={{
                   fontSize: 16,
@@ -136,7 +141,7 @@ const InfoPanel = () => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 Locked amount
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>Mock</div>
+              <div style={{ fontSize: 48, fontWeight: 700 }}>{loacked}</div>
               <div
                 style={{
                   fontSize: 16,
@@ -209,9 +214,18 @@ const InfoPanel = () => {
 
 const StakePanel = () => {
   const [bindRefModalOpen, setBindRefModalOpen] = useState(false);
+  const [stakeInput, setStakeInput] = useState("");
+  const [claimInput, setClaimInput] = useState("");
+
+  const {balance} = useTwettfiWalletContract()
 
   const handleStake = () => {
     setBindRefModalOpen(true);
+  };
+
+  const inputNumberCheck = (str, set) => {
+    let val = str.replaceAll(/[^0-9/.]/g, "");
+    set(val);
   };
 
   return (
@@ -265,7 +279,7 @@ const StakePanel = () => {
           }}
         >
           <div>Staking time: Mock</div>
-          <div>Balance: Mock</div>
+          <div>Balance: {balance}</div>
         </div>
         <div
           style={{
@@ -314,6 +328,8 @@ const StakePanel = () => {
             background: "transparent",
           }}
           className="input-placeholder"
+          value={stakeInput}
+          onChange={(e) => inputNumberCheck(e.target.value, setStakeInput)}
         />
         <Button
           style={{
@@ -369,6 +385,8 @@ const StakePanel = () => {
               background: "transparent",
               width: "50%",
             }}
+            value={claimInput}
+            onChange={(e) => inputNumberCheck(e.target.value, setClaimInput)}
             className="input-placeholder"
           />
         </div>
@@ -398,6 +416,8 @@ const StakePanel = () => {
 };
 
 const PersonalCenter = () => {
+  const { userinfo } = useStateStore();
+
   return (
     <div style={{ padding: "24px 0", width: 1154, margin: "auto" }}>
       <InfoPanel />
@@ -424,12 +444,12 @@ const PersonalCenter = () => {
           Referral list
         </div>
         <div style={{ fontSize: 20 }}>
-          Referral code: Mock
+          Referral code: {userinfo.ref_code}
           <CopyOutlined
             style={{ cursor: "pointer", marginLeft: 8 }}
             size={18}
             onClick={() => {
-              navigator.clipboard.writeText("Mock");
+              navigator.clipboard.writeText(userinfo.ref_code);
               message.success("Referral code copied");
             }}
           />

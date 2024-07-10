@@ -9,11 +9,16 @@ import { useEffect, useState } from "react";
 import { searchTweet, tipTweet, queryUser } from "../../api";
 import dayjs from "dayjs";
 import { useDispatchStore, useStateStore } from "../../context";
+import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
+import { useSender } from "@/context/useSender";
+import { toNano } from "@ton/ton";
 
 const TweetContent = ({ tweet, tipValue }) => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatchStore();
+  const { walletContract } = useTwettfiWalletContract();
+  const { sender } = useSender();
 
   const getUserinfo = async () => {
     try {
@@ -38,22 +43,18 @@ const TweetContent = ({ tweet, tipValue }) => {
       message.info("Please Enter Valid Amount First");
       return;
     }
-    setLoading(true);
-    tipTweet(Number(tipValue), tweet?.tweet_id)
-      .then(async (res) => {
-        if (res?.data?.code === 200) {
-          await getUserinfo();
-          message.success("tip success");
-        } else {
-          message.error(res?.data?.data?.message);
-        }
-      })
-      .catch(console.log)
-      .finally(() => {
-        setLoading(false);
-      });
+    walletContract.send(
+      sender,
+      { value: toNano(0.5) },
+      {
+        $$type: "Tip",
+        query_id: 0,
+        amount: Number(tipValue) * 1e9,
+        destination: 1,
+      }
+    );
   };
-
+  console.log("aaaa", tweet);
   return (
     <div style={{ height: "fit-content", padding: "24px 0", width: "100%" }}>
       <div
@@ -64,38 +65,75 @@ const TweetContent = ({ tweet, tipValue }) => {
           marginBottom: 12,
         }}
       >
-        <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
-        {tweet?.user?.twitter_avatar ? <img src={tweet?.user?.twitter_avatar} alt="" style={{width: 40, height: 40, borderRadius: '50%', border: '1px solid #03fff9'}}/> : null}
-        <div style={{ fontSize: 20, fontWeight: 700, color: "#03fff9" }}>
-          {tweet?.user?.user_name}
-          <span
-            style={{
-              fontSize: 14,
-              color: "#aaa",
-              fontWeight: 400,
-              marginLeft: 12,
-            }}
-          >
-            {dayjs(tweet?.created_at).format("YYYY-MM-DD HH:mm:ss")}
-          </span>
-        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {tweet?.user?.twitter_avatar ? (
+            <img
+              src={tweet?.user?.twitter_avatar}
+              alt=""
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                border: "1px solid #03fff9",
+              }}
+            />
+          ) : null}
+          <div style={{ fontSize: 20, fontWeight: 700, color: "#03fff9" }}>
+            {tweet?.user?.user_name}
+            <span
+              style={{
+                fontSize: 14,
+                color: "#aaa",
+                fontWeight: 400,
+                marginLeft: 12,
+              }}
+            >
+              {dayjs(tweet?.created_at).format("YYYY-MM-DD HH:mm:ss")}
+            </span>
+          </div>
         </div>
         <Button
           type="primary"
           style={{ borderRadius: "20px", height: 40, width: 100, fontSize: 20 }}
-          onClick={tip}
+          onClick={() => tip()}
           loading={loading}
         >
           Tip
         </Button>
       </div>
-      <div style={{marginBottom: 12}}>{tweet?.content}</div>
-      {tweet?.media_urls?.length ? <div style={{marginBottom: 12, display: 'grid', gridTemplateColumns: '50% 50%', gap: 4}}>{tweet?.media_urls?.map?.(img => {
-        return <Image src={img} style={{objectFit: 'cover', height: 240}}></Image>
-      })}</div> : null}
-      <div style={{color: '#1EA1F1', fontSize: 12,cursor: 'pointer'}} onClick={() => {
-        window.open('https://x.com/' + tweet?.user?.user_name + '/status/' + tweet.tweet_id)
-      }}>Show This Tweet</div>
+      <div style={{ marginBottom: 12 }}>{tweet?.content}</div>
+      {tweet?.media_urls?.length ? (
+        <div
+          style={{
+            marginBottom: 12,
+            display: "grid",
+            gridTemplateColumns: "50% 50%",
+            gap: 4,
+          }}
+        >
+          {tweet?.media_urls?.map?.((img) => {
+            return (
+              <Image
+                src={img}
+                style={{ objectFit: "cover", height: 240 }}
+              ></Image>
+            );
+          })}
+        </div>
+      ) : null}
+      <div
+        style={{ color: "#1EA1F1", fontSize: 12, cursor: "pointer" }}
+        onClick={() => {
+          window.open(
+            "https://x.com/" +
+              tweet?.user?.user_name +
+              "/status/" +
+              tweet.tweet_id
+          );
+        }}
+      >
+        Show This Tweet
+      </div>
     </div>
   );
 };
@@ -104,6 +142,7 @@ const ContentSquare = () => {
   const [tipValue, setTipValue] = useState("");
   const [recentTwitter, setRecentTwitter] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const { balance } = useTwettfiWalletContract();
 
   const { userinfo } = useStateStore();
 
@@ -198,9 +237,7 @@ const ContentSquare = () => {
               Total Amount For Tip
             </div>
             <div style={{ fontSize: 36, color: "#03FFF9", fontWeight: 700 }}>
-              {parseInt(
-                userinfo?.user_accounts?.[0]?.balance ?? 0
-              )?.toLocaleString?.()}
+              {balance.toLocaleString()}
               <span style={{ color: "#326bfb", marginLeft: 24 }}>TEF</span>
             </div>
           </div>

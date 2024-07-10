@@ -8,58 +8,44 @@ import { claimProof } from "@/api";
 import { Address, toNano } from "@ton/core";
 import { createProofCells } from "@/utils/createCell";
 import { TweetMint } from "@/api/TweetFi";
+import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
 
 const MeetWithTweetFi = () => {
   const { userinfo } = useStateStore();
   const { sender } = useSender();
   const tweetfi = useTwettfiContract();
 
+  const { balance, loacked } = useTwettfiWalletContract();
+
   const [claimLoading, setClaimLoading] = useState(false);
 
   const handleClaim = async () => {
     try {
       const proofList = await claimProof();
-      console.log('aaaa',proofList.data?.data )
-      const proof = proofList.data?.data?.find?.((item) => item?.user?.address === userinfo.address);
+      const proofIndex = proofList.data?.data?.findIndex?.(
+        (item) => item?.user?.address === userinfo.address
+      );
+      const proof = proofList.data?.data?.[proofIndex];
       if (!proof) {
         throw new Error("no proof found");
       }
       const cellData = JSON.parse(proof.proof);
       const args = {
         $$type: "TweetMint",
-        index: BigInt(parseInt(proof.id)),
+        index: BigInt(proof.claim_index),
         to: Address.parse(userinfo.address),
         amount: BigInt(parseInt(proof.amount)),
         proof: createProofCells(cellData),
         proof_length: BigInt(cellData.length),
         to_str: userinfo.address,
       } as TweetMint;
-      console.log("aaa", args, proof);
-      const res = await tweetfi.send(sender, { value: toNano(0.1) }, args);
-      console.log('aaa res', res)
+      message.info("Please confirm in wallet, extra gas will be refund");
+      await tweetfi.send(sender, { value: toNano(0.5) }, args);
+      message.info("Contract called, please check status manually");
     } catch (err) {
       console.log(err);
     }
   };
-
-  // useEffect(() => {
-  //   tweetfi
-  //     ?.send?.(sender, {value: , }, {
-  //       $$type: 'TweetMint',
-  //       index: bigint,
-  //   to: userinfo.address,
-  //   amount: bigint,
-  //   proof: Cell,
-  //   proof_length: bigint,
-  //   to_str: String,
-  //     })
-  //     ?.then((res) => {
-  //       console.log("aaa123", res);
-  //     })
-  //     .catch((err) => {
-  //       console.log("error", err);
-  //     });
-  // }, [tweetfi]);
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -103,7 +89,13 @@ const MeetWithTweetFi = () => {
               <div style={{ color: "#00FEFB", fontSize: 16, fontWeight: 700 }}>
                 Your Current Balance
               </div>
-              <div style={{ color: "#0476FF", fontSize: 12 }}>
+              <div
+                style={{
+                  color: "#0476FF",
+                  fontSize: 12,
+                  cursor: "not-allowed",
+                }}
+              >
                 Details{" ( Coming Soon ) "}
                 <RightOutlined />
               </div>
@@ -116,10 +108,8 @@ const MeetWithTweetFi = () => {
                 marginTop: 24,
               }}
             >
-              {parseInt(userinfo?.user_accounts?.[0]?.balance)}
-              <span style={{ marginLeft: 12 }}>
-                {userinfo?.user_accounts?.[0]?.token}
-              </span>
+              {balance}
+              <span style={{ marginLeft: 12 }}>TEF</span>
             </div>
             <div style={{ display: "flex", marginTop: 24 }}>
               <div style={{ color: "#aaa" }}>
@@ -132,13 +122,20 @@ const MeetWithTweetFi = () => {
                 </Tooltip>
               </div>
             </div>
-            <div style={{ display: "flex", marginTop: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                marginTop: 12,
+                justifyContent: "space-between",
+              }}
+            >
               <div style={{ color: "#aaa" }}>
                 Locked token
                 <Tooltip title="The locked token will be marketed 1% every day. The release rate can be increased by inviting friends.">
                   <InfoCircleOutlined style={{ marginLeft: 4 }} />
                 </Tooltip>
               </div>
+              <div style={{ color: "#aaa" }}>{loacked}</div>
             </div>
           </div>
           <Button

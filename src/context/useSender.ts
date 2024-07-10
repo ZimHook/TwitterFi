@@ -1,4 +1,4 @@
-import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
+import { useTonConnectUI, useTonAddress, CHAIN } from "@tonconnect/ui-react";
 import { Sender, SenderArguments, Address } from "@ton/ton";
 import { useEffect } from "react";
 import { useStateStore } from ".";
@@ -35,6 +35,7 @@ export function useSender(): { sender: Sender; connected: boolean } {
               payload: args.body?.toBoc().toString("base64"),
             },
           ],
+          network: CHAIN.TESTNET,
           validUntil: Date.now() + 60 * 60 * 1000 * 1000, // 5 minutes for user to approve
         });
       },
