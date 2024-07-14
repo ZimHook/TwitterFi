@@ -29,15 +29,5 @@ export function useTwettfiContract() {
   //   }
   // );
 
-  // useEffect(() => {
-  //   async function getValue() {
-  //     if (!tweetfiContract) return;
-  //     setVal(null);
-  //     // const val = await counterContract.getCounter();
-  //     setVal(Number(val));
-  //   }
-  //   getValue();
-  // }, [tweetfiContract]);
-
-  return tweetfiContract
+  return tweetfiContract;
 }

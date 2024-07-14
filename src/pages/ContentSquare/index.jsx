@@ -2,6 +2,7 @@ import {
   InfoCircleOutlined,
   LoadingOutlined,
   SearchOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Button, Input, message, Image } from "antd";
 import styles from "./index.module.scss";
@@ -11,13 +12,12 @@ import dayjs from "dayjs";
 import { useDispatchStore, useStateStore } from "../../context";
 import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
 import { useSender } from "@/context/useSender";
-import { toNano } from "@ton/ton";
+import { Address, beginCell, toNano } from "@ton/ton";
 
-const TweetContent = ({ tweet, tipValue }) => {
+const TweetContent = ({ tweet, tipValue, walletContract, getBalance }) => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatchStore();
-  const { walletContract } = useTwettfiWalletContract();
   const { sender } = useSender();
 
   const getUserinfo = async () => {
@@ -27,6 +27,7 @@ const TweetContent = ({ tweet, tipValue }) => {
         dispatch({
           type: "setUserinfo",
           userinfo: {
+            ...(res?.data ?? {}),
             ...(res?.data?.twitter ?? {}),
             ...(res?.data?.user ?? {}),
             connected: true,
@@ -38,23 +39,32 @@ const TweetContent = ({ tweet, tipValue }) => {
     }
   };
 
-  const tip = () => {
+  const tip = async () => {
     if (!Number(tipValue)) {
       message.info("Please Enter Valid Amount First");
       return;
     }
-    walletContract.send(
+    console.log("aaa", tweet);
+    if (!tweet.user.address) {
+      message.info("Wrong Address");
+      return;
+    }
+    setLoading(true);
+    await walletContract.send(
       sender,
       { value: toNano(0.5) },
       {
         $$type: "Tip",
         query_id: 0,
         amount: Number(tipValue) * 1e9,
-        destination: 1,
+        destination: Address.parse(tweet.user.address),
+        forward_payload: beginCell().asCell(),
+        response_destination: Address.parse(tweet.user.address),
       }
     );
+    message.success("Transaction Finished");
+    setLoading(false);
   };
-  console.log("aaaa", tweet);
   return (
     <div style={{ height: "fit-content", padding: "24px 0", width: "100%" }}>
       <div
@@ -142,7 +152,8 @@ const ContentSquare = () => {
   const [tipValue, setTipValue] = useState("");
   const [recentTwitter, setRecentTwitter] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const { balance } = useTwettfiWalletContract();
+  const { balance, walletContract, getBalance, balanceLoading } =
+    useTwettfiWalletContract();
 
   const { userinfo } = useStateStore();
 
@@ -236,9 +247,23 @@ const ContentSquare = () => {
             <div style={{ fontSize: 18, marginBottom: 8 }}>
               Total Amount For Tip
             </div>
-            <div style={{ fontSize: 36, color: "#03FFF9", fontWeight: 700 }}>
+            <div
+              style={{
+                fontSize: 36,
+                color: "#03FFF9",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               {balance.toLocaleString()}
-              <span style={{ color: "#326bfb", marginLeft: 24 }}>TEF</span>
+              <span style={{ color: "#326bfb", marginLeft: 12 }}>TEF</span>
+              <SyncOutlined
+                style={{ cursor: "pointer", fontSize: 20 }}
+                onClick={getBalance}
+                spin={balanceLoading}
+              />
             </div>
           </div>
           <Input
@@ -353,7 +378,13 @@ const ContentSquare = () => {
         >
           {recentTwitter.map((tweet, index) => {
             return (
-              <TweetContent tweet={tweet} tipValue={tipValue} key={index} />
+              <TweetContent
+                tweet={tweet}
+                tipValue={tipValue}
+                key={index}
+                walletContract={walletContract}
+                getBalance={getBalance}
+              />
             );
           })}
         </div>

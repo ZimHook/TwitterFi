@@ -10,6 +10,7 @@ import {
   queryUser,
   bindWallet,
   reigster,
+  bindRefCode,
 } from "../../api/index.js";
 import { openWindow } from "../../utils/window.js";
 import {
@@ -117,9 +118,13 @@ const Connect = () => {
     await queryUser()
       .then((res) => {
         if (res?.data) {
+          if (res?.data?.user?.parent_address) {
+            bindRefCode(ref_code);
+          }
           dispatch({
             type: "setUserinfo",
             userinfo: {
+              ...(res?.data ?? {}),
               ...(res?.data?.twitter ?? {}),
               ...(res?.data?.user ?? {}),
               connected: true,

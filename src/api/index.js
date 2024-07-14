@@ -156,7 +156,50 @@ export const bindRefCode = async (ref_code) => {
   return res;
 };
 
-export const claimProof = async() => {
+export const claimProof = async () => {
   const res = await request.get("/api/main/claim_proof");
-  return res
-}
+  return res;
+};
+
+export const referList = async () => {
+  const res = await request.get("/api/twitters/v2/invite_claim_list");
+  return res?.data;
+};
+
+export const getAccountSeqNo = async (address) => {
+  const res = await fetch(
+    "https://testnet.tonapi.io/v2/wallet/" +
+      encodeURIComponent(address) +
+      "/seqno",
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization:
+          "Bearer AEMUUGJ7WOTMXHQAAAANPRJAW52DJ6ACYDGLOCOCHYE6JH7MGC6IZXKLFRPC6NEVIKYPSHA",
+      },
+    }
+  );
+  const data = await res.json();
+  return data?.seqno;
+};
+
+export const getAccountTransactions = async (address) => {
+  const res = await fetch(
+    "https://testnet.tonapi.io/v2/blockchain/accounts/" +
+      encodeURIComponent(address) +
+      "/transactions?limit=10",
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization:
+          "Bearer AEMUUGJ7WOTMXHQAAAANPRJAW52DJ6ACYDGLOCOCHYE6JH7MGC6IZXKLFRPC6NEVIKYPSHA",
+      },
+    }
+  );
+  const data = await res.json();
+  return data?.transactions;
+};

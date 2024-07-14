@@ -85,7 +85,6 @@ const Tweet = () => {
     setAiLoading(true);
     try {
       const aiTweet = await getAiTweet(selectedTags.content);
-      console.log("aaa", aiTweet);
     } catch (e) {
       message.error("Something Went Wrong");
       console.log(e);
@@ -158,9 +157,9 @@ const Tweet = () => {
       >
         <Button
           type="primary"
-          style={{ marginLeft: "auto", display: "block", marginBottom: 16 }}
+          style={{ marginLeft: "auto", display: "block", marginBottom: 16, cursor: "not-allowed" }}
           loading={aiLoading}
-          onClick={aiGenerateTweet}
+          // onClick={aiGenerateTweet}
         >
           AI Generate Tweet
         </Button>

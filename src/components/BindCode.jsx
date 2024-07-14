@@ -24,6 +24,7 @@ const BindCode = ({ open, onSuccess }) => {
           dispatch({
             type: "setUserinfo",
             userinfo: {
+              ...(res?.data ?? {}),
               ...(res?.data?.twitter ?? {}),
               ...(res?.data?.user ?? {}),
               connected: true,
@@ -47,6 +48,7 @@ const BindCode = ({ open, onSuccess }) => {
         dispatch({
           type: "setUserinfo",
           userinfo: {
+            ...(res?.data ?? {}),
             ...(profile?.data?.twitter ?? {}),
             ...(profile?.data?.user ?? {}),
             connected: true,

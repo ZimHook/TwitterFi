@@ -2,6 +2,7 @@ import {
   CopyFilled,
   CopyOutlined,
   QuestionCircleOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Button, Empty, Input, InputNumber, Tooltip, message } from "antd";
 import {
@@ -11,14 +12,21 @@ import {
   InfoIcon,
   SyncIcon,
 } from "../../components/icon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BindCode from "../../components/BindCode";
 import { useStateStore } from "@/context";
 import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
+import { useSender } from "@/context/useSender";
+import { Address, toNano } from "@ton/ton";
+import { referList } from "@/api";
+import { shortenAddress } from "@/utils/shortenAddress";
+import dayjs from "dayjs";
 
-const InfoPanel = () => {
+const InfoPanel = ({ contract }) => {
+  const { stake, stakeLoading, lockedLoading, locked, getStake, getLocked } =
+    contract;
 
-  const {stake, loacked} = useTwettfiWalletContract()
+  const {userinfo} = useStateStore()
 
   return (
     <div
@@ -46,6 +54,14 @@ const InfoPanel = () => {
       >
         <div style={{ fontSize: 35, fontWeight: 700, marginBottom: 48 }}>
           Twettfi staking data
+          <SyncOutlined
+            style={{ fontSize: 16, marginLeft: 24, cursor: "pointer" }}
+            spin={lockedLoading || stakeLoading}
+            onClick={() => {
+              getLocked();
+              getStake();
+            }}
+          />
         </div>
         <div
           style={{
@@ -75,7 +91,9 @@ const InfoPanel = () => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 Total Staking Balance
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>{stake}</div>
+              <div style={{ fontSize: 48, fontWeight: 700 }}>
+                {stake + locked}
+              </div>
               <div
                 style={{
                   fontSize: 16,
@@ -108,7 +126,7 @@ const InfoPanel = () => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 My Staking Balance
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>Mock</div>
+              <div style={{ fontSize: 48, fontWeight: 700 }}>{stake}</div>
               <div
                 style={{
                   fontSize: 16,
@@ -141,7 +159,7 @@ const InfoPanel = () => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 Locked amount
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>{loacked}</div>
+              <div style={{ fontSize: 48, fontWeight: 700 }}>{locked}</div>
               <div
                 style={{
                   fontSize: 16,
@@ -195,7 +213,7 @@ const InfoPanel = () => {
         </div>
         <div style={{ marginBottom: 24 }}>
           <div style={{ marginBottom: 12, fontSize: 32, fontWeight: 700 }}>
-            in Mock hours
+            in {(dayjs(userinfo.score_info.score_end).diff(dayjs(), 'minute') / 60).toLocaleString()} hours
           </div>
           <div style={{ color: "#9c9c9c", fontSize: 24 }}>
             Approx. next rebase
@@ -203,7 +221,7 @@ const InfoPanel = () => {
         </div>
         <div>
           <div style={{ marginBottom: 12, fontSize: 32, fontWeight: 700 }}>
-            Mock
+            {userinfo?.score_info?.user_score}
           </div>
           <div style={{ color: "#9c9c9c", fontSize: 24 }}>Current Score</div>
         </div>
@@ -212,15 +230,42 @@ const InfoPanel = () => {
   );
 };
 
-const StakePanel = () => {
+const StakePanel = ({ contract }) => {
   const [bindRefModalOpen, setBindRefModalOpen] = useState(false);
   const [stakeInput, setStakeInput] = useState("");
   const [claimInput, setClaimInput] = useState("");
+  const [staking, setStaking] = useState(false);
 
-  const {balance} = useTwettfiWalletContract()
+  const { userinfo } = useStateStore();
+  const { sender } = useSender();
 
-  const handleStake = () => {
-    setBindRefModalOpen(true);
+  const { balance, walletContract } = contract;
+
+  const handleStake = async () => {
+    const showedRef = localStorage.getItem(
+      "ref_modal" + userinfo.twitter_id_str
+    );
+    if (!showedRef && !userinfo.parent_address) {
+      setBindRefModalOpen(true);
+      localStorage.setItem("ref_modal" + userinfo.twitter_id_str, "1");
+    } else {
+      try {
+        setStaking(true);
+        await walletContract.send(
+          sender,
+          { value: toNano(0.5) },
+          {
+            $$type: "Stake",
+            amount: Number(stakeInput) * 1e9,
+            inviter: Address.parse(userinfo.parent_address || userinfo.address),
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setStaking(false);
+      }
+    }
   };
 
   const inputNumberCheck = (str, set) => {
@@ -343,6 +388,7 @@ const StakePanel = () => {
           }}
           type="primary"
           onClick={handleStake}
+          loading={staking}
         >
           Staking Now
         </Button>
@@ -417,11 +463,21 @@ const StakePanel = () => {
 
 const PersonalCenter = () => {
   const { userinfo } = useStateStore();
+  const contract = useTwettfiWalletContract();
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    referList()
+      .then((res) => {
+        setData(res?.data ?? []);
+      })
+      .catch();
+  }, []);
 
   return (
     <div style={{ padding: "24px 0", width: 1154, margin: "auto" }}>
-      <InfoPanel />
-      <StakePanel />
+      <InfoPanel contract={contract} />
+      <StakePanel contract={contract} />
       <div
         style={{
           marginTop: 25,
@@ -470,9 +526,9 @@ const PersonalCenter = () => {
         Invite friends to stake, and unlock 10% of the locked tokens directly
         based on the number of invited users staking
       </div>
+      <div style={{background: '#040E20', padding: 8, borderRadius: 8, marginTop: 36,}}>
       <div
         style={{
-          marginTop: 36,
           background: "#0B1830",
           borderRadius: 8,
           fontSize: 18,
@@ -488,18 +544,42 @@ const PersonalCenter = () => {
         <div style={{ width: "22.5%" }}>Staking amount</div>
         <div style={{ width: "22.5%" }}>Get the claim quantity</div>
       </div>
-      <div
-        style={{
-          width: "100%",
-          height: 200,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 48,
-          fontWeight: 700,
-        }}
-      >
-        No Data
+      {data.length ? (
+        <div>
+          {data.map((item, index) => {
+            return (
+              <div
+                key={index}
+                style={{ display: "flex", textAlign: "center", marginTop: 12, background: '#0D1524', padding: '16px 0px', borderRadius: 8 }}
+              >
+                <div style={{ width: "10%" }}>{index + 1}</div>
+                <div style={{ width: "22.5%" }}>{shortenAddress(item.address, 10)}</div>
+                <div style={{ width: "22.5%" }}>{item.user_name}</div>
+                <div style={{ width: "22.5%" }}>
+                  {item.total_staking_amount}
+                </div>
+                <div style={{ width: "22.5%" }}>
+                  {item.total_staking_amount * 0.1}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            height: 200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 48,
+            fontWeight: 700,
+          }}
+        >
+          No Data
+        </div>
+      )}
       </div>
     </div>
   );

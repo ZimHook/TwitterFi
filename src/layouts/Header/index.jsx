@@ -59,6 +59,7 @@ const Header = () => {
           dispatch({
             type: "setUserinfo",
             userinfo: {
+              ...(res?.data ?? {}),
               ...(res?.data?.twitter ?? {}),
               ...(res?.data?.user ?? {}),
               connected: true,
