@@ -13,57 +13,48 @@ import { useDispatchStore, useStateStore } from "../../context";
 import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
 import { useSender } from "@/context/useSender";
 import { Address, beginCell, toNano } from "@ton/ton";
+import inputNumberCheck from "@/utils/inputNumberCheck";
 
-const TweetContent = ({ tweet, tipValue, walletContract, getBalance }) => {
+const TweetContent = ({ tweet, tipValue, walletContract, balance }) => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatchStore();
   const { sender } = useSender();
-
-  const getUserinfo = async () => {
-    try {
-      const res = await queryUser();
-      if (res?.data) {
-        dispatch({
-          type: "setUserinfo",
-          userinfo: {
-            ...(res?.data ?? {}),
-            ...(res?.data?.twitter ?? {}),
-            ...(res?.data?.user ?? {}),
-            connected: true,
-          },
-        });
-      }
-    } catch (message) {
-      return console.log(message);
-    }
-  };
 
   const tip = async () => {
     if (!Number(tipValue)) {
       message.info("Please Enter Valid Amount First");
       return;
     }
-    console.log("aaa", tweet);
     if (!tweet.user.address) {
       message.info("Wrong Address");
       return;
     }
+    if (Number(tipValue) > balance) {
+      message.info("Insufficient funds");
+      return;
+    }
     setLoading(true);
-    await walletContract.send(
-      sender,
-      { value: toNano(0.5) },
-      {
-        $$type: "Tip",
-        query_id: 0,
-        amount: Number(tipValue) * 1e9,
-        destination: Address.parse(tweet.user.address),
-        forward_payload: beginCell().asCell(),
-        response_destination: Address.parse(tweet.user.address),
-      }
-    );
-    message.success("Transaction Finished");
-    setLoading(false);
+    try {
+      await walletContract.send(
+        sender,
+        { value: toNano(0.5) },
+        {
+          $$type: "Tip",
+          query_id: 0,
+          amount: Number(tipValue) * 1e9,
+          destination: Address.parse(tweet.user.address),
+          forward_payload: beginCell().asCell(),
+          response_destination: Address.parse(tweet.user.address),
+        }
+      );
+      message.success("Transaction Finished");
+    } catch (err) {
+      console.log(err);
+      message.error("Failed");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div style={{ height: "fit-content", padding: "24px 0", width: "100%" }}>
@@ -232,6 +223,10 @@ const ContentSquare = () => {
             padding: 24,
             flexGrow: 0,
             flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <div
@@ -281,7 +276,7 @@ const ContentSquare = () => {
             }}
             value={tipValue}
             onChange={(e) => {
-              setTipValue(e.target.value);
+              inputNumberCheck(e.target.value, setTipValue);
             }}
             placeholder="Enter Tip Quantity (upper limit 1000)"
           />
@@ -383,7 +378,7 @@ const ContentSquare = () => {
                 tipValue={tipValue}
                 key={index}
                 walletContract={walletContract}
-                getBalance={getBalance}
+                balance={balance}
               />
             );
           })}

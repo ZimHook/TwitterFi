@@ -17,24 +17,6 @@ const BindCode = ({ open, onSuccess }) => {
     }
   };
 
-  const getUserinfo = async () => {
-    await queryUser()
-      .then((res) => {
-        if (res?.data) {
-          dispatch({
-            type: "setUserinfo",
-            userinfo: {
-              ...(res?.data ?? {}),
-              ...(res?.data?.twitter ?? {}),
-              ...(res?.data?.user ?? {}),
-              connected: true,
-            },
-          });
-        }
-      })
-      .catch(console.log);
-  };
-
   const handleBind = async () => {
     if (!input.length) {
       message.error("Invalid Input");

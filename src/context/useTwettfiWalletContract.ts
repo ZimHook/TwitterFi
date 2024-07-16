@@ -13,14 +13,14 @@ export function useTwettfiWalletContract() {
   const [balance, setBalance] = useState(0);
   const [locked, setLocked] = useState(0);
   const [stake, setStake] = useState(0);
+  const [release, setRelease] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [lockedLoading, setLockedLoading] = useState(false);
   const [stakeLoading, setStakeLoading] = useState(false);
+  const [releaseLoading, setReleaseLoading] = useState(false);
 
   const walletContract = useAsyncInitialize(async () => {
-    const address =
-      userinfo.staking_wallet_address ||
-      "EQBp-QFO8hFHTUymUrOkMdPt8M8OIXdY9zxQNh3JCwOmb7MI";
+    const address = userinfo.staking_wallet_address;
     if (!client || !address) return;
     const contract = new TweetFiWallet(
       Address.parse(address) // replace with your address from tutorial 2 step 8
@@ -67,10 +67,24 @@ export function useTwettfiWalletContract() {
       });
   };
 
+  const getRelease = () => {
+    setReleaseLoading(true);
+    return walletContract
+      ?.getReleasedAmount?.()
+      ?.then?.((res) => {
+        setStake(Number(res) / 1e9);
+      })
+      ?.catch?.(console.log)
+      ?.finally(() => {
+        setReleaseLoading(false);
+      });
+  };
+
   useEffect(() => {
     getBalance();
     getLocked();
     getStake();
+    getRelease();
   }, [walletContract]);
 
   return {
@@ -84,5 +98,8 @@ export function useTwettfiWalletContract() {
     balanceLoading,
     stakeLoading,
     lockedLoading,
+    getRelease,
+    releaseLoading,
+    release,
   };
 }

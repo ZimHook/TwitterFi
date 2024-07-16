@@ -57,28 +57,31 @@ const MeetWithTweetFi = () => {
         proof_length: BigInt(cellData.length),
         to_str: userinfo.address,
       } as TweetMint;
-      message.info("Please confirm in wallet, extra gas will be refund");
       await tweetfi.send(sender, { value: toNano(0.5) }, args);
+      await getCanClaimAmount();
     } catch (err) {
+      message.error("Failed")
       console.log(err);
     } finally {
       setClaimLoading(false);
     }
   };
 
-  useEffect(() => {
+  const getCanClaimAmount = async () => {
     setClaimLoading(true);
-    claimProof()
-      .then((res) => {
-        const proof = res.data?.data?.find?.(
-          (item) => item?.user?.address === userinfo.address
-        );
-        setCanClaimAmount(parseInt(proof?.amount ?? 0));
-      })
-      .catch()
-      .finally(() => {
-        setClaimLoading(false);
-      });
+    try {
+      const res = await claimProof();
+      const proof = res.data?.data?.find?.(
+        (item) => item?.user?.address === userinfo.address
+      );
+      setCanClaimAmount(parseInt(proof?.amount ?? 0));
+    } finally {
+      setClaimLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getCanClaimAmount();
   }, []);
 
   return (
@@ -161,7 +164,7 @@ const MeetWithTweetFi = () => {
                   <InfoCircleOutlined style={{ marginLeft: 4 }} />
                 </Tooltip>
               </div>
-              <div style={{ color: "#aaa" }}>{canClaimAmount}</div>
+              <div style={{ color: "#aaa" }}>{canClaimAmount / 1e9}</div>
             </div>
             <div
               style={{
@@ -315,6 +318,7 @@ const MeetWithTweetFi = () => {
               />
             </svg>
           </div>
+          <div style={{ marginTop: 12 }}>{percentage}%</div>
           <div
             style={{
               background: "#000",

@@ -176,8 +176,6 @@ export const getAccountSeqNo = async (address) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization:
-          "Bearer AEMUUGJ7WOTMXHQAAAANPRJAW52DJ6ACYDGLOCOCHYE6JH7MGC6IZXKLFRPC6NEVIKYPSHA",
       },
     }
   );
@@ -195,8 +193,6 @@ export const getAccountTransactions = async (address) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization:
-          "Bearer AEMUUGJ7WOTMXHQAAAANPRJAW52DJ6ACYDGLOCOCHYE6JH7MGC6IZXKLFRPC6NEVIKYPSHA",
       },
     }
   );

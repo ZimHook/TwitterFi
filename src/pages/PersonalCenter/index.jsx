@@ -21,12 +21,13 @@ import { Address, toNano } from "@ton/ton";
 import { referList } from "@/api";
 import { shortenAddress } from "@/utils/shortenAddress";
 import dayjs from "dayjs";
+import inputNumberCheck from "@/utils/inputNumberCheck";
 
 const InfoPanel = ({ contract }) => {
   const { stake, stakeLoading, lockedLoading, locked, getStake, getLocked } =
     contract;
 
-  const {userinfo} = useStateStore()
+  const { userinfo } = useStateStore();
 
   return (
     <div
@@ -211,19 +212,23 @@ const InfoPanel = ({ contract }) => {
             </div>
           </Tooltip>
         </div>
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ marginBottom: 12, fontSize: 32, fontWeight: 700 }}>
-            in {(dayjs(userinfo.score_info.score_end).diff(dayjs(), 'minute') / 60).toLocaleString()} hours
-          </div>
-          <div style={{ color: "#9c9c9c", fontSize: 24 }}>
-            Approx. next rebase
-          </div>
-        </div>
-        <div>
+        <div style={{ marginBottom: 36 }}>
           <div style={{ marginBottom: 12, fontSize: 32, fontWeight: 700 }}>
             {userinfo?.score_info?.user_score}
           </div>
           <div style={{ color: "#9c9c9c", fontSize: 24 }}>Current Score</div>
+        </div>
+        <div>
+          <div style={{ marginBottom: 12, fontSize: 24, fontWeight: 700 }}>
+            in{" "}
+            {(
+              dayjs(userinfo.score_info.score_end).add(7, 'd').diff(dayjs(), "minute") / 60
+            ).toLocaleString()}{" "}
+            hours
+          </div>
+          <div style={{ color: "#9c9c9c", fontSize: 16 }}>
+            Approx. next rebase
+          </div>
         </div>
       </div>
     </div>
@@ -235,11 +240,12 @@ const StakePanel = ({ contract }) => {
   const [stakeInput, setStakeInput] = useState("");
   const [claimInput, setClaimInput] = useState("");
   const [staking, setStaking] = useState(false);
+  const [claiming, setClaiming] = useState(false);
 
   const { userinfo } = useStateStore();
   const { sender } = useSender();
 
-  const { balance, walletContract } = contract;
+  const { balance, walletContract, release } = contract;
 
   const handleStake = async () => {
     const showedRef = localStorage.getItem(
@@ -261,6 +267,7 @@ const StakePanel = ({ contract }) => {
           }
         );
       } catch (err) {
+        message.error("Failed");
         console.log(err);
       } finally {
         setStaking(false);
@@ -268,9 +275,27 @@ const StakePanel = ({ contract }) => {
     }
   };
 
-  const inputNumberCheck = (str, set) => {
-    let val = str.replaceAll(/[^0-9/.]/g, "");
-    set(val);
+  const handleClaim = async () => {
+    if (Number(claimInput) > release) {
+      message.error("Insufficient funds");
+      return;
+    }
+    try {
+      setClaiming(true);
+      await walletContract.send(
+        sender,
+        { value: toNano(0.5) },
+        {
+          $$type: "Claim",
+          amount: Number(claimInput) * 1e9,
+        }
+      );
+    } catch (err) {
+      message.error("Failed");
+      console.log(err);
+    } finally {
+      setClaiming(false);
+    }
   };
 
   return (
@@ -312,7 +337,7 @@ const StakePanel = ({ contract }) => {
         >
           <InfoIcon style={{ marginRight: 8 }} />
           The current staking release speed is&nbsp;
-          <span style={{ color: "#01D1C7" }}>Mock</span>
+          <span style={{ color: "#01D1C7" }}>1% per Day</span>
         </div>
         <div
           style={{
@@ -323,7 +348,7 @@ const StakePanel = ({ contract }) => {
             padding: "0 8px",
           }}
         >
-          <div>Staking time: Mock</div>
+          <div></div>
           <div>Balance: {balance}</div>
         </div>
         <div
@@ -416,7 +441,8 @@ const StakePanel = ({ contract }) => {
             Claim amount
           </div>
           <div style={{ fontSize: 88, textAlign: "center", fontWeight: 700 }}>
-            Mock<span style={{ fontSize: 32, marginLeft: 32 }}>TEF</span>
+            {release}
+            <span style={{ fontSize: 32, marginLeft: 32 }}>TEF</span>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -447,6 +473,8 @@ const StakePanel = ({ contract }) => {
             fontWeight: 700,
           }}
           type="primary"
+          onClick={handleClaim}
+          loading={claiming}
         >
           Claim
         </Button>
@@ -526,60 +554,76 @@ const PersonalCenter = () => {
         Invite friends to stake, and unlock 10% of the locked tokens directly
         based on the number of invited users staking
       </div>
-      <div style={{background: '#040E20', padding: 8, borderRadius: 8, marginTop: 36,}}>
       <div
         style={{
-          background: "#0B1830",
+          background: "#040E20",
+          padding: 8,
           borderRadius: 8,
-          fontSize: 18,
-          display: "flex",
-          textAlign: "center",
-          height: "66px",
-          alignItems: "center",
+          marginTop: 36,
         }}
       >
-        <div style={{ width: "10%" }}>No</div>
-        <div style={{ width: "22.5%" }}>Player</div>
-        <div style={{ width: "22.5%" }}>Twitter account</div>
-        <div style={{ width: "22.5%" }}>Staking amount</div>
-        <div style={{ width: "22.5%" }}>Get the claim quantity</div>
-      </div>
-      {data.length ? (
-        <div>
-          {data.map((item, index) => {
-            return (
-              <div
-                key={index}
-                style={{ display: "flex", textAlign: "center", marginTop: 12, background: '#0D1524', padding: '16px 0px', borderRadius: 8 }}
-              >
-                <div style={{ width: "10%" }}>{index + 1}</div>
-                <div style={{ width: "22.5%" }}>{shortenAddress(item.address, 10)}</div>
-                <div style={{ width: "22.5%" }}>{item.user_name}</div>
-                <div style={{ width: "22.5%" }}>
-                  {item.total_staking_amount}
-                </div>
-                <div style={{ width: "22.5%" }}>
-                  {item.total_staking_amount * 0.1}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
         <div
           style={{
-            width: "100%",
-            height: 200,
+            background: "#0B1830",
+            borderRadius: 8,
+            fontSize: 18,
             display: "flex",
+            textAlign: "center",
+            height: "66px",
             alignItems: "center",
-            justifyContent: "center",
-            fontSize: 48,
-            fontWeight: 700,
           }}
         >
-          No Data
+          <div style={{ width: "10%" }}>No</div>
+          <div style={{ width: "22.5%" }}>Player</div>
+          <div style={{ width: "22.5%" }}>Twitter account</div>
+          <div style={{ width: "22.5%" }}>Staking amount</div>
+          <div style={{ width: "22.5%" }}>Get the claim quantity</div>
         </div>
-      )}
+        {data.length ? (
+          <div>
+            {data.map((item, index) => {
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    textAlign: "center",
+                    marginTop: 12,
+                    background: "#0D1524",
+                    padding: "16px 0px",
+                    borderRadius: 8,
+                  }}
+                >
+                  <div style={{ width: "10%" }}>{index + 1}</div>
+                  <div style={{ width: "22.5%" }}>
+                    {shortenAddress(item.address, 10)}
+                  </div>
+                  <div style={{ width: "22.5%" }}>{item.user_name}</div>
+                  <div style={{ width: "22.5%" }}>
+                    {item.total_staking_amount}
+                  </div>
+                  <div style={{ width: "22.5%" }}>
+                    {item.total_staking_amount * 0.1}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: 200,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 48,
+              fontWeight: 700,
+            }}
+          >
+            No Data
+          </div>
+        )}
       </div>
     </div>
   );
