@@ -153,9 +153,11 @@ const Invest = () => {
         </div>
       </div>
       <div
-        style={{ fontSize: 20, margin: "-48px auto 48px", textAlign: "center" }}
+        style={{ fontSize: 20, margin: "-48px auto 48px", textAlign: "center", zIndex: 10, position: "relative" }}
       >
-        Please join the investment group after completion:[xxxxx]
+        Please join the <span style={{textDecoration: 'underline', cursor: 'pointer'}} onClick={() => {
+          window.open("https://t.me/+SDpS-q6PUuMxZGQx")
+        }}>investment group</span> after completion
       </div>
     </div>
   );
