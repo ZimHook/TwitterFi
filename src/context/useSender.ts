@@ -10,8 +10,8 @@ export function useSender(): { sender: Sender; connected: boolean } {
   const connectedAddress = useTonAddress(false);
   const { userinfo } = useStateStore();
 
-  useEffect(() => {
-    if (!userinfo?.address) return;
+  const checkConnection = () => {
+    if (!userinfo?.address) return false;
     if (
       connectedAddress &&
       Address.parse(userinfo?.address).toRawString() !== connectedAddress
@@ -20,16 +20,25 @@ export function useSender(): { sender: Sender; connected: boolean } {
       tonConnectUI.disconnect().then(() => {
         tonConnectUI.openModal();
       });
-      return;
+      return false;
     }
-    if (!connectedAddress) {
-      tonConnectUI.openModal();
+    if (
+      connectedAddress &&
+      Address.parse(userinfo?.address).toRawString() === connectedAddress
+    ) {
+      return true;
     }
-  }, [connectedAddress, userinfo, tonConnectUI]);
+    tonConnectUI.openModal();
+    return false;
+  };
 
   return {
     sender: {
       send: async (args: SenderArguments) => {
+        if(!checkConnection()){
+          message.info("Connect Wallet First")
+          throw new Error("Not Connected")
+        }
         const currentSeqNo = await getAccountSeqNo(connectedAddress);
         const { boc } = await tonConnectUI.sendTransaction({
           messages: [

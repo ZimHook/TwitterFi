@@ -62,6 +62,7 @@ const Tweet = () => {
       );
       if (res?.message?.includes("succ")) {
         message.success("Tweet Posted");
+        setInput("")
       } else {
         message.error(res?.message);
       }
@@ -95,11 +96,12 @@ const Tweet = () => {
 
   useEffect(() => {
     setCanTweet(true);
-  }, [input, images, tags]);
+  }, [input, images, selectedTags]);
 
   useEffect(() => {
     (async () => {
       const tags = await getTweetTags();
+      console.log('aaa', tags)
       setTags(tags?.data ?? []);
     })();
   }, []);
@@ -123,10 +125,11 @@ const Tweet = () => {
       >
         {tags.map((tag, index) => {
           const active = selectedTags?.id === tag.id;
+          const disabled = tag?.local_tweet_count >= 3
           return (
             <div
               style={{
-                width: 120,
+                width: 160,
                 height: 80,
                 background: active ? "#03FFF9" : "#000",
                 color: active ? "#000" : "#03fff9",
@@ -135,14 +138,17 @@ const Tweet = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: 24,
-                cursor: "pointer",
+                cursor: disabled ? "not-allowed" : "pointer",
               }}
               key={index}
               onClick={() => {
+                if(disabled) {
+                  return
+                }
                 setSelectedTags(tag);
               }}
             >
-              {tag?.content}
+              {tag?.content}&nbsp;{tag?.local_tweet_count}/3
             </div>
           );
         })}
