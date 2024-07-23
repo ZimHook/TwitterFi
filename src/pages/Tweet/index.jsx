@@ -61,6 +61,7 @@ const Tweet = () => {
         images
       );
       if (res?.message?.includes("succ")) {
+        await getTweetTags();
         message.success("Tweet Posted");
         setInput("")
       } else {
@@ -75,7 +76,8 @@ const Tweet = () => {
   };
 
   const getTweetTags = async () => {
-    return await getPostTags();
+    const tags = await getPostTags();
+    setTags(tags?.data ?? []);
   };
 
   const aiGenerateTweet = async () => {
@@ -99,11 +101,7 @@ const Tweet = () => {
   }, [input, images, selectedTags]);
 
   useEffect(() => {
-    (async () => {
-      const tags = await getTweetTags();
-      console.log('aaa', tags)
-      setTags(tags?.data ?? []);
-    })();
+    getTweetTags();
   }, []);
 
   return (
@@ -125,7 +123,7 @@ const Tweet = () => {
       >
         {tags.map((tag, index) => {
           const active = selectedTags?.id === tag.id;
-          const disabled = tag?.local_tweet_count >= 3
+          const disabled = tag?.user_day_count >= tag?.user_day_limit
           return (
             <div
               style={{
@@ -148,7 +146,7 @@ const Tweet = () => {
                 setSelectedTags(tag);
               }}
             >
-              {tag?.content}&nbsp;{tag?.local_tweet_count}/3
+              {tag?.content}&nbsp;{tag?.user_day_count}/{tag?.user_day_limit}
             </div>
           );
         })}
