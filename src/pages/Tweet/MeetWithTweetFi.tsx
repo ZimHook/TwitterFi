@@ -9,6 +9,7 @@ import { Address, toNano } from "@ton/core";
 import { createProofCells } from "@/utils/createCell";
 import { TweetMint } from "@/api/TweetFi";
 import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
+import { formatCash } from "@/utils/formatCash";
 
 const percentageToPos = (ipercentage: number, r: number) => {
   let percentage = ipercentage;
@@ -158,7 +159,7 @@ const MeetWithTweetFi = () => {
               <div style={{ color: "#aaa" }}>
                 Claim token
                 <Tooltip
-                  title="Tokens that can be withdrawn directly."
+                  title="Tokens that can be obtained based on mint equity."
                   overlayStyle={{ width: "fit-content", maxWidth: "none" }}
                 >
                   <InfoCircleOutlined style={{ marginLeft: 4 }} />
@@ -194,7 +195,7 @@ const MeetWithTweetFi = () => {
             onClick={handleClaim}
             loading={claimLoading}
           >
-            Claim Token
+            Mint Token
           </Button>
         </div>
         <div
@@ -245,9 +246,11 @@ const MeetWithTweetFi = () => {
             }}
           >
             <div style={{ color: "#fff" }}>{userinfo.screen_name}</div>
-            <div style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>
+            <Tooltip title={userinfo.twitter_bio}>
+            <div style={{ color: "#aaa", fontSize: 12, marginTop: 4, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
               {userinfo.twitter_bio}
             </div>
+            </Tooltip>
           </div>
         </div>
         <div
@@ -352,7 +355,7 @@ const MeetWithTweetFi = () => {
             Tip Amount
           </div>
           <div style={{ color: "#0076FE", fontSize: 20, marginTop: 48 }}>
-            <span style={{ color: "#03FFF6" }}>{balance}</span> TEF
+            <span style={{ color: "#03FFF6" }}>{formatCash(balance).num + formatCash(balance).unit}</span> TEF
           </div>
           <div
             style={{

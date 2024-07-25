@@ -92,7 +92,7 @@ const InfoPanel = ({ contract }) => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 Total Staking Balance
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>
+              <div style={{ fontSize: 36, fontWeight: 700 }}>
                 {stake + locked}
               </div>
               <div
@@ -100,7 +100,7 @@ const InfoPanel = ({ contract }) => {
                   fontSize: 16,
                   position: "absolute",
                   right: 24,
-                  bottom: 10,
+                  bottom: 6,
                 }}
               >
                 TEF
@@ -127,13 +127,13 @@ const InfoPanel = ({ contract }) => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 My Staking Balance
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>{stake}</div>
+              <div style={{ fontSize: 36, fontWeight: 700 }}>{stake}</div>
               <div
                 style={{
                   fontSize: 16,
                   position: "absolute",
                   right: 24,
-                  bottom: 10,
+                  bottom: 6,
                 }}
               >
                 TEF
@@ -160,13 +160,13 @@ const InfoPanel = ({ contract }) => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 Locked amount
               </div>
-              <div style={{ fontSize: 48, fontWeight: 700 }}>{locked}</div>
+              <div style={{ fontSize: 36, fontWeight: 700 }}>{locked}</div>
               <div
                 style={{
                   fontSize: 16,
                   position: "absolute",
                   right: 24,
-                  bottom: 10,
+                  bottom: 6,
                 }}
               >
                 TEF

@@ -120,6 +120,7 @@ const Connect = () => {
         if (res?.data) {
           if (res?.data?.user?.parent_address) {
             bindRefCode(ref_code);
+            message.success("Recommender: " + ref_code);
           }
           dispatch({
             type: "setUserinfo",
