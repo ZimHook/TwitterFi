@@ -4,26 +4,25 @@ import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
 import { TwitterIcon } from "../../components/icon";
 import * as echarts from "echarts";
+import { queryTagsCount } from "@/api";
 
-const HashtagOverview = ({ tags = [] }) => {
-  const [date, setDate] = useState(dayjs().startOf("day").add(-1, 'day'));
+const HashtagOverview = () => {
+  const [date, setDate] = useState([
+    dayjs().startOf("day").add(-8, "day"),
+    dayjs().startOf("day").add(-1, "day"),
+  ]);
+  const [tags, setTags] = useState([]);
   const [activeTag, setActiveTag] = useState();
 
   const disabledDate = (current) => {
     return current && current >= dayjs().startOf("day");
   };
 
-  useEffect(() => {
-    if (!activeTag && tags[0]) {
-      setActiveTag(tags[0]);
-    }
-  }, [tags, activeTag]);
-
-  useEffect(() => {
+  const renderChart = () => {
     const container = document.getElementById("tag_chart");
-    if (activeTag?.twitter_tag_counts_daily?.length && container) {
+    if (activeTag?.dates?.length && container) {
       const myChart = echarts.init(container);
-      const data = activeTag.twitter_tag_counts_daily.reverse()
+      const data = activeTag.dates;
       myChart.setOption({
         tooltip: {
           show: true,
@@ -31,9 +30,7 @@ const HashtagOverview = ({ tags = [] }) => {
         },
         xAxis: {
           type: "category",
-          data: data.map(
-            (item) => item.date || "-"
-          ),
+          data: data.map((item) => item.date || "-"),
           show: false,
         },
         yAxis: {
@@ -42,9 +39,7 @@ const HashtagOverview = ({ tags = [] }) => {
         },
         series: [
           {
-            data: data.map(
-              (item) => item.total_count || 0
-            ),
+            data: data.map((item) => item.local_total_count || 0),
             type: "line",
             smooth: true,
           },
@@ -52,7 +47,30 @@ const HashtagOverview = ({ tags = [] }) => {
         color: "#03FFF8",
       });
     }
+  }
+
+  useEffect(() => {
+    renderChart()
   }, [activeTag]);
+
+  useEffect(() => {
+    queryTagsCount(date[0].format("YYYY-MM-DD"), date[1].format("YYYY-MM-DD"))
+      .then((res) => {
+        const data = res?.data?.data?.tag_infos?.map?.(item => {
+          let totalCount = 0;
+          item?.dates?.forEach((item) => {
+            totalCount += item.local_total_count;
+          });
+          return {
+            ...item,
+            totalCount,
+          }
+        }) ?? []
+        setTags(data);
+        setActiveTag(data[0]);
+      })
+      .catch(console.log);
+  }, [date]);
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -66,7 +84,7 @@ const HashtagOverview = ({ tags = [] }) => {
       >
         <div style={{ fontSize: 48, color: "#03FFF9" }}>Hashtag Overview</div>
         <div>
-          <DatePicker
+          <DatePicker.RangePicker
             disabledDate={disabledDate}
             style={{
               background: "#000",
@@ -109,7 +127,7 @@ const HashtagOverview = ({ tags = [] }) => {
             className={styles.scroll_bar}
           >
             {tags.map((tag) => {
-              const active = activeTag?.id === tag.id;
+              const active = activeTag?.tag_id === tag.tag_id;
               return (
                 <div
                   key={tag.id}
@@ -126,10 +144,10 @@ const HashtagOverview = ({ tags = [] }) => {
                   }}
                 >
                   <div style={{ color: active ? "#0275FF" : "#888" }}>
-                    {tag?.content}
+                    {tag?.tag_name}
                   </div>
                   <div style={{ color: "#fff" }}>
-                    {tag?.tweet_count?.toLocaleString?.()}
+                    {tag?.totalCount?.toLocaleString?.()}
                   </div>
                 </div>
               );
@@ -174,7 +192,7 @@ const HashtagOverview = ({ tags = [] }) => {
                 Total Tweets
               </div>
               <div>
-                {activeTag?.tweet_count?.toLocaleString?.()}
+                {activeTag?.totalCount?.toLocaleString?.()}
                 <span></span>
               </div>
             </div>
@@ -188,12 +206,57 @@ const HashtagOverview = ({ tags = [] }) => {
             borderRadius: 24,
           }}
         >
-          <div style={{display: 'flex', justifyContent: 'space-between', padding: 12, paddingTop: 16}}>
-            <div style={{height: 26, borderRadius: 16, border: '1px solid #03FFF7', color: '#03FFF7', fontSize: 12, padding: '3px 24px', lineHeight: '18px'}}>POST IMPRESSIONS</div>
-            {activeTag?.twitter_tag_counts_daily?.length ? <div style={{background:'#1777FF', fontSize: 12, borderRadius: 16,height: 26, lineHeight: '18px', padding: '4px 12px'}}>{date.add(-1 * activeTag.twitter_tag_counts_daily.length, 'day').format('YYYY-MM-DD')}~{date.format('YYYY-MM-DD')}</div> : null}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: 12,
+              paddingTop: 16,
+            }}
+          >
+            <div
+              style={{
+                height: 26,
+                borderRadius: 16,
+                border: "1px solid #03FFF7",
+                color: "#03FFF7",
+                fontSize: 12,
+                padding: "3px 24px",
+                lineHeight: "18px",
+              }}
+            >
+              POST IMPRESSIONS
+            </div>
+            <div
+              style={{
+                background: "#1777FF",
+                fontSize: 12,
+                borderRadius: 16,
+                height: 26,
+                lineHeight: "18px",
+                padding: "4px 12px",
+              }}
+            >
+              {date[0].format("YYYY-MM-DD")}~{date[1].format("YYYY-MM-DD")}
+            </div>
           </div>
-          <div id="tag_chart" style={{ width: "100%", height: "80%", marginTop: '-10%' }}></div>
-          {activeTag?.content ? <div style={{color: '#aaa', fontSize: 12, paddingInline: 12, textAlign: 'center'}}>This data is the comprehensive POST data of the entire network of {activeTag?.content}</div> : null}
+          <div
+            id="tag_chart"
+            style={{ width: "100%", height: "80%", marginTop: "-10%" }}
+          ></div>
+          {activeTag?.tag_name ? (
+            <div
+              style={{
+                color: "#aaa",
+                fontSize: 12,
+                paddingInline: 12,
+                textAlign: "center",
+              }}
+            >
+              This data is the comprehensive POST data of the entire network of{" "}
+              {activeTag?.tag_name}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

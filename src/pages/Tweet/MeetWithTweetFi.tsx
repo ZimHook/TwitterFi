@@ -10,6 +10,8 @@ import { createProofCells } from "@/utils/createCell";
 import { TweetMint } from "@/api/TweetFi";
 import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
 import { formatCash } from "@/utils/formatCash";
+import { useNavigate } from "react-router-dom";
+import { tabs } from "../Home";
 
 const percentageToPos = (ipercentage: number, r: number) => {
   let percentage = ipercentage;
@@ -25,10 +27,11 @@ const percentageToPos = (ipercentage: number, r: number) => {
   return { x, y };
 };
 
-const MeetWithTweetFi = () => {
+const MeetWithTweetFi = ({setActiveTab}) => {
   const { userinfo } = useStateStore();
   const { sender } = useSender();
   const tweetfi = useTwettfiContract();
+  const navigate = useNavigate()
 
   const { balance, locked } = useTwettfiWalletContract();
 
@@ -131,10 +134,13 @@ const MeetWithTweetFi = () => {
                 style={{
                   color: "#0476FF",
                   fontSize: 12,
-                  cursor: "not-allowed",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setActiveTab(tabs[2])
                 }}
               >
-                Details{" ( Coming Soon ) "}
+                Details
                 <RightOutlined />
               </div>
             </div>

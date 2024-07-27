@@ -44,9 +44,9 @@ export function useTwettfiWalletContract() {
   const getLocked = () => {
     setLockedLoading(true);
     return walletContract
-      ?.getLockInfo?.()
+      ?.getLockAmountMinusAutoUnlock?.()
       ?.then?.((res) => {
-        setLocked(Number(res.amount) / 1e9);
+        setLocked(Number(res) / 1e9);
       })
       ?.catch?.(console.log)
       ?.finally(() => {
@@ -57,9 +57,9 @@ export function useTwettfiWalletContract() {
   const getStake = () => {
     setStakeLoading(true);
     return walletContract
-      ?.getStakeInfo?.()
+      ?.getStakeAmountMinusAutoUnstake?.()
       ?.then?.((res) => {
-        setStake(Number(res.amount) / 1e9);
+        setStake(Number(res) / 1e9);
       })
       ?.catch?.(console.log)
       ?.finally(() => {
@@ -70,7 +70,7 @@ export function useTwettfiWalletContract() {
   const getRelease = () => {
     setReleaseLoading(true);
     return walletContract
-      ?.getReleasedAmount?.()
+      ?.getClaimAmountNow?.()
       ?.then?.((res) => {
         setStake(Number(res) / 1e9);
       })

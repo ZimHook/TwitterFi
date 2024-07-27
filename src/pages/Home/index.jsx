@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import ContentSquare from "../ContentSquare";
 import PersonalCenter from "../PersonalCenter";
 
-const tabs = [
+export const tabs = [
   {
     key: "forTweet",
     label: "For Tweet",
@@ -61,7 +61,7 @@ const Home = () => {
           );
         })}
       </div>
-      {<activeTab.Component />}
+      {<activeTab.Component setActiveTab={setActiveTab}/>}
     </div>
   );
 };

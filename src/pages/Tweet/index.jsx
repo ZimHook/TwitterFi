@@ -15,7 +15,7 @@ import MeetWithTweetFi from "./MeetWithTweetFi";
 import { useStateStore } from "../../context";
 import InvestBanner from '../Invest/InvestBanner'
 
-const Tweet = () => {
+const Tweet = ({setActiveTab}) => {
   const [input, setInput] = useState("");
   const [canTweet, setCanTweet] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -379,7 +379,7 @@ const Tweet = () => {
         </div>
       </div>
       <HashtagOverview tags={tags} />
-      <MeetWithTweetFi />
+      <MeetWithTweetFi setActiveTab={setActiveTab}/>
     </div>
   );
 };

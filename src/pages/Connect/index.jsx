@@ -118,9 +118,8 @@ const Connect = () => {
     await queryUser()
       .then((res) => {
         if (res?.data) {
-          if (res?.data?.user?.parent_address) {
+          if (!res?.data?.user?.parent_address) {
             bindRefCode(ref_code);
-            message.success("Recommender: " + ref_code);
           }
           dispatch({
             type: "setUserinfo",

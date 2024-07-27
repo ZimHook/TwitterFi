@@ -161,6 +161,11 @@ export const claimProof = async () => {
   return res;
 };
 
+export const queryTagsCount = async (start_date, end_date) => {
+  const res = await request.post("/api/twitters/v2/tags_range", { start_date, end_date });
+  return res;
+};
+
 export const referList = async () => {
   const res = await request.get("/api/twitters/v2/invite_claim_list");
   return res?.data;
