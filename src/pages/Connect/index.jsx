@@ -119,7 +119,13 @@ const Connect = () => {
       .then((res) => {
         if (res?.data) {
           if (!res?.data?.user?.parent_address) {
-            bindRefCode(ref_code);
+            bindRefCode(ref_code)
+              .then((refRes) => {
+                message.success(
+                  "Recommender: @" + refRes?.data?.data?.parent_twitter_name
+                );
+              })
+              .catch(console.log);
           }
           dispatch({
             type: "setUserinfo",
