@@ -72,7 +72,7 @@ export function useTwettfiWalletContract() {
     return walletContract
       ?.getClaimAmountNow?.()
       ?.then?.((res) => {
-        setStake(Number(res) / 1e9);
+        setRelease(Number(res) / 1e9);
       })
       ?.catch?.(console.log)
       ?.finally(() => {
