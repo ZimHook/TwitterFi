@@ -118,7 +118,7 @@ const Connect = () => {
     await queryUser()
       .then((res) => {
         if (res?.data) {
-          if (!res?.data?.user?.parent_address) {
+          if (!res?.data?.user?.parent_address && ref_code) {
             bindRefCode(ref_code)
               .then((refRes) => {
                 message.success(
