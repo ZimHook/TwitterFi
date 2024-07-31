@@ -5,6 +5,11 @@ import { useAsyncInitialize } from "./useAsyncInitialize";
 import { Address, OpenedContract } from "@ton/core";
 import { useStateStore } from ".";
 
+const keep2Decimals = (numLike: number | string) => {
+  const num = Number(Number(numLike).toFixed(2));
+  return num;
+};
+
 export function useTwettfiWalletContract() {
   const client = useTonClient();
 
@@ -33,7 +38,7 @@ export function useTwettfiWalletContract() {
     return walletContract
       ?.getGetWalletData?.()
       ?.then?.((res) => {
-        setBalance(Number(res.balance) / 1e9);
+        setBalance(keep2Decimals(Number(res.balance) / 1e9));
       })
       ?.catch?.(console.log)
       ?.finally(() => {
@@ -46,7 +51,7 @@ export function useTwettfiWalletContract() {
     return walletContract
       ?.getLockAmountMinusAutoUnlock?.()
       ?.then?.((res) => {
-        setLocked(Number(res) / 1e9);
+        setLocked(keep2Decimals(Number(res) / 1e9));
       })
       ?.catch?.(console.log)
       ?.finally(() => {
@@ -59,7 +64,7 @@ export function useTwettfiWalletContract() {
     return walletContract
       ?.getStakeAmountMinusAutoUnstake?.()
       ?.then?.((res) => {
-        setStake(Number(res) / 1e9);
+        setStake(keep2Decimals(Number(res) / 1e9));
       })
       ?.catch?.(console.log)
       ?.finally(() => {
@@ -72,7 +77,7 @@ export function useTwettfiWalletContract() {
     return walletContract
       ?.getClaimAmountNow?.()
       ?.then?.((res) => {
-        setRelease(Number(res) / 1e9);
+        setRelease(keep2Decimals(Number(res) / 1e9));
       })
       ?.catch?.(console.log)
       ?.finally(() => {
