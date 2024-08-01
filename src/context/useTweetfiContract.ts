@@ -5,7 +5,7 @@ import { useAsyncInitialize } from "./useAsyncInitialize";
 import { Address, OpenedContract } from "@ton/core";
 import { useSender } from "./useSender";
 
-export function useTwettfiContract() {
+export function useTweetfiContract() {
   const client = useTonClient();
   const { sender } = useSender();
 

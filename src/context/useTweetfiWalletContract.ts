@@ -10,7 +10,7 @@ const keep2Decimals = (numLike: number | string) => {
   return num;
 };
 
-export function useTwettfiWalletContract() {
+export function useTweetfiWalletContract() {
   const client = useTonClient();
 
   const { userinfo } = useStateStore();

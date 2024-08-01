@@ -15,7 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import BindCode from "../../components/BindCode";
 import { useStateStore } from "@/context";
-import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
+import { useTweetfiWalletContract } from "@/context/useTweetfiWalletContract";
 import { useSender } from "@/context/useSender";
 import { Address, toNano } from "@ton/ton";
 import { referList } from "@/api";
@@ -54,7 +54,7 @@ const InfoPanel = ({ contract }) => {
         }}
       >
         <div style={{ fontSize: 35, fontWeight: 700, marginBottom: 48 }}>
-          Twettfi staking data
+          Tweetfi staking data
           <SyncOutlined
             style={{ fontSize: 16, marginLeft: 24, cursor: "pointer" }}
             spin={lockedLoading || stakeLoading}
@@ -437,7 +437,16 @@ const StakePanel = ({ contract }) => {
               marginBottom: 24,
             }}
           >
-            <EthIcon />
+            <img
+            src="/logo.png"
+            alt="logo"
+            style={{
+              width: 45,
+              height: 45,
+              objectFit: "contain",
+              marginRight: 6,
+            }}
+          />
             Claim amount
           </div>
           <div style={{ fontSize: 88, textAlign: "center", fontWeight: 700 }}>
@@ -491,7 +500,7 @@ const StakePanel = ({ contract }) => {
 
 const PersonalCenter = () => {
   const { userinfo } = useStateStore();
-  const contract = useTwettfiWalletContract();
+  const contract = useTweetfiWalletContract();
   const [data, setData] = useState([]);
 
   useEffect(() => {

@@ -1,14 +1,14 @@
 import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons";
 import { useStateStore } from "../../context";
 import { Button, Tooltip, message } from "antd";
-import { useTwettfiContract } from "../../context/useTwettfiContract";
+import { useTweetfiContract } from "../../context/useTweetfiContract";
 import { useEffect, useState } from "react";
 import { useSender } from "@/context/useSender";
 import { claimProof } from "@/api";
 import { Address, toNano } from "@ton/core";
 import { createProofCells } from "@/utils/createCell";
 import { TweetMint } from "@/api/TweetFi";
-import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
+import { useTweetfiWalletContract } from "@/context/useTweetfiWalletContract";
 import { formatCash } from "@/utils/formatCash";
 import { useNavigate } from "react-router-dom";
 import { tabs } from "../Home";
@@ -30,10 +30,10 @@ const percentageToPos = (ipercentage: number, r: number) => {
 const MeetWithTweetFi = ({setActiveTab}) => {
   const { userinfo } = useStateStore();
   const { sender } = useSender();
-  const tweetfi = useTwettfiContract();
+  const tweetfi = useTweetfiContract();
   const navigate = useNavigate()
 
-  const { balance, locked } = useTwettfiWalletContract();
+  const { balance, locked } = useTweetfiWalletContract();
 
   const [claimLoading, setClaimLoading] = useState(false);
   const [canClaimAmount, setCanClaimAmount] = useState(0);

@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { searchTweet, tipTweet, queryUser } from "../../api";
 import dayjs from "dayjs";
 import { useDispatchStore, useStateStore } from "../../context";
-import { useTwettfiWalletContract } from "@/context/useTwettfiWalletContract";
+import { useTweetfiWalletContract } from "@/context/useTweetfiWalletContract";
 import { useSender } from "@/context/useSender";
 import { Address, beginCell, toNano } from "@ton/ton";
 import inputNumberCheck from "@/utils/inputNumberCheck";
@@ -144,7 +144,7 @@ const ContentSquare = () => {
   const [recentTwitter, setRecentTwitter] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const { balance, walletContract, getBalance, balanceLoading } =
-    useTwettfiWalletContract();
+    useTweetfiWalletContract();
 
   const { userinfo } = useStateStore();
 
