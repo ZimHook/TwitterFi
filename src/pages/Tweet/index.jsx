@@ -55,8 +55,8 @@ const Tweet = ({ setActiveTab }) => {
     setTweetLoading(true);
     try {
       const res = await postTwitter(
-        input,
-        selectedTags.content + " https://tweetfi.io?ref=" + userinfo.ref_code,
+        input  + "\nhttps://tweetfi.io?ref=" + userinfo.ref_code,
+        selectedTags.content,
         selectedTags.id,
         images
       );
