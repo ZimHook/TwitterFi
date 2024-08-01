@@ -1,4 +1,4 @@
-import { InfoCircleOutlined, RightOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, RightOutlined, SyncOutlined } from "@ant-design/icons";
 import { useStateStore } from "../../context";
 import { Button, Tooltip, message } from "antd";
 import { useTweetfiContract } from "../../context/useTweetfiContract";
@@ -12,6 +12,7 @@ import { useTweetfiWalletContract } from "@/context/useTweetfiWalletContract";
 import { formatCash } from "@/utils/formatCash";
 import { useNavigate } from "react-router-dom";
 import { tabs } from "../Home";
+import { SyncIcon } from "@/components/icon";
 
 const percentageToPos = (ipercentage: number, r: number) => {
   let percentage = ipercentage;
@@ -33,7 +34,7 @@ const MeetWithTweetFi = ({setActiveTab}) => {
   const tweetfi = useTweetfiContract();
   const navigate = useNavigate()
 
-  const { balance, locked } = useTweetfiWalletContract();
+  const { balance, locked, getBalance, getLocked, balanceLoading, lockedLoading } = useTweetfiWalletContract();
 
   const [claimLoading, setClaimLoading] = useState(false);
   const [canClaimAmount, setCanClaimAmount] = useState(0);
@@ -128,7 +129,10 @@ const MeetWithTweetFi = ({setActiveTab}) => {
               }}
             >
               <div style={{ color: "#00FEFB", fontSize: 16, fontWeight: 700 }}>
-                Your Current Balance
+                Your Current Balance<SyncOutlined style={{marginLeft: 8, cursor: 'pointer'}} onClick={() => {
+                  getBalance()
+                  getLocked()
+                }} spin={balanceLoading || lockedLoading}/>
               </div>
               <div
                 style={{

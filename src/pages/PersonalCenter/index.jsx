@@ -245,7 +245,7 @@ const StakePanel = ({ contract }) => {
   const { userinfo } = useStateStore();
   const { sender } = useSender();
 
-  const { balance, walletContract, release } = contract;
+  const { balance, walletContract, release, getRelease, releaseLoading } = contract;
 
   const handleStake = async () => {
     const showedRef = localStorage.getItem(
@@ -447,7 +447,9 @@ const StakePanel = ({ contract }) => {
               marginRight: 6,
             }}
           />
-            Claim amount
+            Claim amount <SyncOutlined style={{fontSize: 16, marginLeft: 8, marginTop: 12, cursor: 'pointer'}} onClick={() => {
+              getRelease()
+            }} spin={releaseLoading}/>
           </div>
           <div style={{ fontSize: 88, textAlign: "center", fontWeight: 700 }}>
             {release}
