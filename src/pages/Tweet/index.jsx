@@ -13,9 +13,9 @@ import {
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import MeetWithTweetFi from "./MeetWithTweetFi";
 import { useStateStore } from "../../context";
-import InvestBanner from '../Invest/InvestBanner'
+import InvestBanner from "../Invest/InvestBanner";
 
-const Tweet = ({setActiveTab}) => {
+const Tweet = ({ setActiveTab }) => {
   const [input, setInput] = useState("");
   const [canTweet, setCanTweet] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -56,14 +56,14 @@ const Tweet = ({setActiveTab}) => {
     try {
       const res = await postTwitter(
         input,
-        selectedTags.content,
+        selectedTags.content + " https://tweetfi.io?ref=" + userinfo.ref_code,
         selectedTags.id,
         images
       );
       if (res?.message?.includes("succ")) {
         await getTweetTags();
         message.success("Tweet Posted");
-        setInput("")
+        setInput("");
       } else {
         message.error(res?.message);
       }
@@ -123,7 +123,7 @@ const Tweet = ({setActiveTab}) => {
       >
         {tags.map((tag, index) => {
           const active = selectedTags?.id === tag.id;
-          const disabled = tag?.user_day_count >= tag?.user_day_limit
+          const disabled = tag?.user_day_count >= tag?.user_day_limit;
           return (
             <div
               style={{
@@ -140,8 +140,8 @@ const Tweet = ({setActiveTab}) => {
               }}
               key={index}
               onClick={() => {
-                if(disabled) {
-                  return
+                if (disabled) {
+                  return;
                 }
                 setSelectedTags(tag);
               }}
@@ -161,16 +161,45 @@ const Tweet = ({setActiveTab}) => {
       >
         <Button
           type="primary"
-          style={{ marginLeft: "auto", display: "block", marginBottom: 16, cursor: "not-allowed" }}
+          style={{
+            marginLeft: "auto",
+            display: "block",
+            marginBottom: 16,
+            cursor: "not-allowed",
+          }}
           loading={aiLoading}
           // onClick={aiGenerateTweet}
         >
           AI Generate Tweet
         </Button>
-        <div style={{ background: "#000", borderRadius: 18, display: "flex", paddingTop: 8 }}>
-          {userinfo?.profile_image_url ? <div style={{ width: "64px", flexShrink: 0, paddingLeft: 16, paddingTop: 8 }}>
-            <img src={userinfo.profile_image_url} style={{width: 48, height: 48, borderRadius: 24, objectFit: 'cover'}}/>
-          </div> : null}
+        <div
+          style={{
+            background: "#000",
+            borderRadius: 18,
+            display: "flex",
+            paddingTop: 8,
+          }}
+        >
+          {userinfo?.profile_image_url ? (
+            <div
+              style={{
+                width: "64px",
+                flexShrink: 0,
+                paddingLeft: 16,
+                paddingTop: 8,
+              }}
+            >
+              <img
+                src={userinfo.profile_image_url}
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 24,
+                  objectFit: "cover",
+                }}
+              />
+            </div>
+          ) : null}
           <div style={{ width: "100%", flexShrink: 1 }}>
             <Input.TextArea
               style={{ resize: "none" }}
@@ -379,7 +408,7 @@ const Tweet = ({setActiveTab}) => {
         </div>
       </div>
       <HashtagOverview tags={tags} />
-      <MeetWithTweetFi setActiveTab={setActiveTab}/>
+      <MeetWithTweetFi setActiveTab={setActiveTab} />
     </div>
   );
 };
