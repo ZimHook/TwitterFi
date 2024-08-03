@@ -48,7 +48,6 @@ export function useSender(): { sender: Sender; connected: boolean } {
               payload: args.body?.toBoc().toString("base64"),
             },
           ],
-          network: CHAIN.TESTNET,
           validUntil: Date.now() + 60 * 60 * 1000 * 1000, // 5 minutes for user to approve
         });
         await new Promise((res, rej) => {
