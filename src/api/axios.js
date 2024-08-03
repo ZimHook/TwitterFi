@@ -11,7 +11,7 @@ const getJwt = () => {
   return localStorage.getItem("twitterfi_jwt");
 };
 
-request.defaults.baseURL = "https://api.tweetfi.cc/";
+request.defaults.baseURL = "https://api.tweetfi.io/";
 
 request.interceptors.request.use((config) => {
   config.headers.Authorization = "Bearer " + (getJwt() || "");
