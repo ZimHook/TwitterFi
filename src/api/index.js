@@ -15,7 +15,7 @@ const getJwt = () => {
 
 export const twitterRequestToken = async (body) => {
   const res = await fetch(
-    "https://api.tweetfi.cc/api/twitters/oauth_token" + bodyToUrlParams(body),
+    "https://api.tweetfi.io/api/twitters/oauth_token" + bodyToUrlParams(body),
     {
       method: "GET",
       headers: {
@@ -29,7 +29,7 @@ export const twitterRequestToken = async (body) => {
 };
 
 export const twitterAccessToken = async (body) => {
-  const res = await fetch("https://api.tweetfi.cc/api/twitters/access_token", {
+  const res = await fetch("https://api.tweetfi.io/api/twitters/access_token", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -43,7 +43,7 @@ export const twitterAccessToken = async (body) => {
 
 export const reigster = async (body) => {
   const res = await fetch(
-    "https://api.tweetfi.cc/api/twitters/verify_credentials",
+    "https://api.tweetfi.io/api/twitters/verify_credentials",
     {
       method: "POST",
       headers: {
@@ -58,7 +58,7 @@ export const reigster = async (body) => {
 };
 
 export const queryUser = async () => {
-  const res = await fetch("https://api.tweetfi.cc/api/twitters/profile", {
+  const res = await fetch("https://api.tweetfi.io/api/twitters/profile", {
     method: "GET",
     headers: {
       Accept: "application/json",
@@ -71,7 +71,7 @@ export const queryUser = async () => {
 };
 
 export const bindWallet = (body) => {
-  return fetch("https://api.tweetfi.cc/api/twitters/bind_wallet", {
+  return fetch("https://api.tweetfi.io/api/twitters/bind_wallet", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -86,7 +86,7 @@ export const postTwitter = async (tweet, tag, tag_id, images) => {
   if (images.length) {
     return postTwitterWithImages(tweet, tag, tag_id, images);
   }
-  const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tweet", {
+  const res = await fetch("https://api.tweetfi.io/api/twitters/v2/tweet", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -107,7 +107,7 @@ export const postTwitterWithImages = async (tweet, tag, tag_id, images) => {
     formData.append("files", image);
   });
   const res = await fetch(
-    "https://api.tweetfi.cc/api/twitters/v2/tweet_medias",
+    "https://api.tweetfi.io/api/twitters/v2/tweet_medias",
     {
       method: "POST",
       headers: {
@@ -122,7 +122,7 @@ export const postTwitterWithImages = async (tweet, tag, tag_id, images) => {
 };
 
 export const getPostTags = async () => {
-  const res = await fetch("https://api.tweetfi.cc/api/twitters/v2/tags", {
+  const res = await fetch("https://api.tweetfi.io/api/twitters/v2/tags", {
     method: "GET",
     headers: {
       Accept: "application/json",
@@ -173,7 +173,7 @@ export const referList = async () => {
 
 export const getAccountSeqNo = async (address) => {
   const res = await fetch(
-    "https://testnet.tonapi.io/v2/wallet/" +
+    "https://tonapi.io/v2/wallet/" +
       encodeURIComponent(address) +
       "/seqno",
     {
@@ -190,7 +190,7 @@ export const getAccountSeqNo = async (address) => {
 
 export const getAccountTransactions = async (address) => {
   const res = await fetch(
-    "https://testnet.tonapi.io/v2/blockchain/accounts/" +
+    "https://tonapi.io/v2/blockchain/accounts/" +
       encodeURIComponent(address) +
       "/transactions?limit=10",
     {
