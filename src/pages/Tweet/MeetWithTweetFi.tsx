@@ -1,4 +1,8 @@
-import { InfoCircleOutlined, RightOutlined, SyncOutlined } from "@ant-design/icons";
+import {
+  InfoCircleOutlined,
+  RightOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
 import { useStateStore } from "../../context";
 import { Button, Tooltip, message } from "antd";
 import { useTweetfiContract } from "../../context/useTweetfiContract";
@@ -28,17 +32,24 @@ const percentageToPos = (ipercentage: number, r: number) => {
   return { x, y };
 };
 
-const MeetWithTweetFi = ({setActiveTab}) => {
+const MeetWithTweetFi = ({ setActiveTab }) => {
   const { userinfo } = useStateStore();
   const { sender } = useSender();
   const tweetfi = useTweetfiContract();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const { balance, locked, getBalance, getLocked, balanceLoading, lockedLoading } = useTweetfiWalletContract();
+  const {
+    balance,
+    locked,
+    getBalance,
+    getLocked,
+    balanceLoading,
+    lockedLoading,
+  } = useTweetfiWalletContract();
 
   const [claimLoading, setClaimLoading] = useState(false);
   const [canClaimAmount, setCanClaimAmount] = useState(0);
-  const percentage = Number(userinfo?.score_info?.user_proportion);
+  const percentage = Number(userinfo?.score_info?.user_proportion) || 0;
 
   const handleClaim = async () => {
     try {
@@ -65,7 +76,7 @@ const MeetWithTweetFi = ({setActiveTab}) => {
       await tweetfi.send(sender, { value: toNano(0.5) }, args);
       await getCanClaimAmount();
     } catch (err) {
-      message.error("Failed")
+      message.error("Failed");
       console.log(err);
     } finally {
       setClaimLoading(false);
@@ -129,10 +140,15 @@ const MeetWithTweetFi = ({setActiveTab}) => {
               }}
             >
               <div style={{ color: "#00FEFB", fontSize: 16, fontWeight: 700 }}>
-                Your Current Balance<SyncOutlined style={{marginLeft: 8, cursor: 'pointer'}} onClick={() => {
-                  getBalance()
-                  getLocked()
-                }} spin={balanceLoading || lockedLoading}/>
+                Your Current Balance
+                <SyncOutlined
+                  style={{ marginLeft: 8, cursor: "pointer" }}
+                  onClick={() => {
+                    getBalance();
+                    getLocked();
+                  }}
+                  spin={balanceLoading || lockedLoading}
+                />
               </div>
               <div
                 style={{
@@ -141,10 +157,10 @@ const MeetWithTweetFi = ({setActiveTab}) => {
                   cursor: "pointer",
                 }}
                 onClick={() => {
-                  setActiveTab(tabs[2])
+                  setActiveTab(tabs[2]);
                 }}
               >
-                Details
+                Personal Center
                 <RightOutlined />
               </div>
             </div>
@@ -167,11 +183,8 @@ const MeetWithTweetFi = ({setActiveTab}) => {
               }}
             >
               <div style={{ color: "#aaa" }}>
-                Claim token
-                <Tooltip
-                  title="Tokens that can be obtained based on mint equity."
-                  overlayStyle={{ width: "fit-content", maxWidth: "none" }}
-                >
+                Mint token
+                <Tooltip title="Tokens that can be obtained based on mint equity. The tokens obtained this week will be aggregated and released next week.">
                   <InfoCircleOutlined style={{ marginLeft: 4 }} />
                 </Tooltip>
               </div>
@@ -240,6 +253,10 @@ const MeetWithTweetFi = ({setActiveTab}) => {
               fontSize: 18,
               fontWeight: 700,
               marginTop: 32,
+              maxWidth: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             @{userinfo.user_name}
@@ -257,9 +274,18 @@ const MeetWithTweetFi = ({setActiveTab}) => {
           >
             <div style={{ color: "#fff" }}>{userinfo.screen_name}</div>
             <Tooltip title={userinfo.twitter_bio}>
-            <div style={{ color: "#aaa", fontSize: 12, marginTop: 4, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-              {userinfo.twitter_bio}
-            </div>
+              <div
+                style={{
+                  color: "#aaa",
+                  fontSize: 12,
+                  marginTop: 4,
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                }}
+              >
+                {userinfo.twitter_bio}
+              </div>
             </Tooltip>
           </div>
         </div>
@@ -359,13 +385,17 @@ const MeetWithTweetFi = ({setActiveTab}) => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
           <div style={{ color: "#00FEFA", fontSize: 18, fontWeight: 700 }}>
             Tip Amount
           </div>
           <div style={{ color: "#0076FE", fontSize: 20, marginTop: 48 }}>
-            <span style={{ color: "#03FFF6" }}>{formatCash(balance).num + formatCash(balance).unit}</span> TEF
+            <span style={{ color: "#03FFF6" }}>
+              {formatCash(balance).num + formatCash(balance).unit}
+            </span>{" "}
+            TEF
           </div>
           <div
             style={{

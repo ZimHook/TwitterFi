@@ -204,6 +204,7 @@ const HashtagOverview = () => {
             background: "#171C1E",
             width: "35%",
             borderRadius: 24,
+            minWidth: 380,
           }}
         >
           <div

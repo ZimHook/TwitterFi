@@ -175,18 +175,12 @@ const Connect = () => {
         <img src="/logo.svg" alt="logo" className={styles.banner_logo} />
         <div className={styles.banner_text}>
           <div className={styles.banner_text_title}>
-            Tweet on Twitter
+          Post on X &
             <br />
-            and earn money
-          </div>
-          <div className={styles.banner_text_subtitle}>
-            For tweet
-            <br />
-            Take profits on Twitter
+            Get Rewards
           </div>
           <div className={styles.banner_text_desc}>
-            Direct income from posting tweets, and you will get reward bonuses
-            by interacting with fans.
+          TweetFI (TEF) is an innovative social media mining platform designed to provide social media users with channels to earn money by combining artificial intelligence technology with blockchain token economics.
           </div>
         </div>
       </div>
@@ -195,7 +189,7 @@ const Connect = () => {
           <Step
             finished={connected}
             icon={UserAddOutlined}
-            text="Login with Twitter"
+            text="Login with X"
           />
           <Step
             finished={address}
@@ -211,7 +205,7 @@ const Connect = () => {
           }}
           loading={loading}
         >
-          {connected ? "Connect wallet" : "Login with Twitter"}
+          {connected ? "Connect wallet" : "Login with X"}
         </Button>
         {/* <TonConnectButton /> */}
       </div>

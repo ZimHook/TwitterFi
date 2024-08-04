@@ -159,12 +159,12 @@ const Tweet = ({ setActiveTab }) => {
           borderRadius: 24,
         }}
       >
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#888', marginBottom: 16}}>
+        The weekly tweet data will be counted, allowing the value of your tweets to be quickly reflected!
         <Button
           type="primary"
           style={{
-            marginLeft: "auto",
             display: "block",
-            marginBottom: 16,
             cursor: "not-allowed",
           }}
           loading={aiLoading}
@@ -172,6 +172,7 @@ const Tweet = ({ setActiveTab }) => {
         >
           AI Generate Tweet
         </Button>
+        </div>
         <div
           style={{
             background: "#000",

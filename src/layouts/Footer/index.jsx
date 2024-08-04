@@ -9,7 +9,7 @@ const linksConfig = [
       {
         link: "https://twitter.com/tweetfi_office",
         icon: <XOutlined />,
-        label: "Twitter",
+        label: "X",
       },
       {
         link: "https://t.me/tweetficommunity",
