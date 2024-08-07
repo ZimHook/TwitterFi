@@ -1,7 +1,7 @@
-import { Button, Image, Input, Popover, Upload, message } from "antd";
+import { Button, Image, Input, Popover, Tooltip, Upload, message } from "antd";
 import styles from "./index.module.scss";
 import { useEffect, useState } from "react";
-import { getAiTweet, getPostTags, postTwitter } from "../../api";
+import { getAiTweet, getPostTags, postTwitter, queryUser } from "../../api";
 import HashtagOverview from "./HashtagOverview";
 import {
   CloseCircleFilled,
@@ -12,7 +12,7 @@ import {
 } from "@ant-design/icons";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import MeetWithTweetFi from "./MeetWithTweetFi";
-import { useStateStore } from "../../context";
+import { useDispatchStore, useStateStore } from "../../context";
 import InvestBanner from "../Invest/InvestBanner";
 
 const Tweet = ({ setActiveTab }) => {
@@ -26,6 +26,7 @@ const Tweet = ({ setActiveTab }) => {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [images, setImages] = useState([]);
   const { userinfo } = useStateStore();
+  const dispatch = useDispatchStore();
 
   const checkFileSize = () => {
     const MaxSize = 219136;
@@ -34,6 +35,21 @@ const Tweet = ({ setActiveTab }) => {
       current += file.size;
     });
     return current > MaxSize;
+  };
+
+  const getUserinfo = async () => {
+    const res = await queryUser();
+    if (res?.data) {
+      dispatch({
+        type: "setUserinfo",
+        userinfo: {
+          ...(res?.data ?? {}),
+          ...(res?.data?.twitter ?? {}),
+          ...(res?.data?.user ?? {}),
+          connected: true,
+        },
+      });
+    }
   };
 
   const handleTweet = async () => {
@@ -55,13 +71,13 @@ const Tweet = ({ setActiveTab }) => {
     setTweetLoading(true);
     try {
       const res = await postTwitter(
-        input  + "\nhttps://tweetfi.io?ref=" + userinfo.ref_code,
+        input + "\nhttps://tweetfi.io?ref=" + userinfo.ref_code,
         selectedTags.content,
         selectedTags.id,
         images
       );
       if (res?.message?.includes("succ")) {
-        await getTweetTags();
+        await getUserinfo();
         message.success("Tweet Posted");
         setInput("");
       } else {
@@ -146,7 +162,7 @@ const Tweet = ({ setActiveTab }) => {
                 setSelectedTags(tag);
               }}
             >
-              {tag?.content}&nbsp;{tag?.user_day_count}/{tag?.user_day_limit}
+              {tag?.content}
             </div>
           );
         })}
@@ -159,19 +175,28 @@ const Tweet = ({ setActiveTab }) => {
           borderRadius: 24,
         }}
       >
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#888', marginBottom: 16}}>
-        The weekly tweet data will be counted, allowing the value of your tweets to be quickly reflected!
-        <Button
-          type="primary"
+        <div
           style={{
-            display: "block",
-            cursor: "not-allowed",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            color: "#888",
+            marginBottom: 16,
           }}
-          loading={aiLoading}
-          // onClick={aiGenerateTweet}
         >
-          AI Generate Tweet
-        </Button>
+          The weekly tweet data will be counted, allowing the value of your
+          tweets to be quickly reflected!
+          <Button
+            type="primary"
+            style={{
+              display: "block",
+              cursor: "not-allowed",
+            }}
+            loading={aiLoading}
+            // onClick={aiGenerateTweet}
+          >
+            AI Generate Tweet
+          </Button>
         </div>
         <div
           style={{
@@ -376,19 +401,21 @@ const Tweet = ({ setActiveTab }) => {
                 }}
               >
                 <div>{input.length}/280</div>
-                <Button
-                  type="primary"
-                  style={{
-                    height: 40,
-                    cursor: canTweet ? "pointer" : "not-allowed",
-                    borderRadius: "24px",
-                    opacity: canTweet ? "1" : ".5",
-                  }}
-                  onClick={handleTweet}
-                  loading={tweetLoading}
-                >
-                  TWEET
-                </Button>
+                <Tooltip title="A personal account can send a maximum of one tweet per hour, and a maximum of 3 task tweets per day. Please distribute your tweets reasonably!">
+                  <Button
+                    type="primary"
+                    style={{
+                      height: 40,
+                      cursor: canTweet ? "pointer" : "not-allowed",
+                      borderRadius: "24px",
+                      opacity: canTweet ? "1" : ".5",
+                    }}
+                    onClick={handleTweet}
+                    loading={tweetLoading}
+                  >
+                    TWEET&nbsp;{userinfo.twitter_day_count ?? 0}/3
+                  </Button>
+                </Tooltip>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center" }}>

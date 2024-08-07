@@ -22,6 +22,7 @@ import { referList } from "@/api";
 import { shortenAddress } from "@/utils/shortenAddress";
 import dayjs from "dayjs";
 import inputNumberCheck from "@/utils/inputNumberCheck";
+import { formatCash } from "@/utils/formatCash";
 
 const InfoPanel = ({ contract }) => {
   const { stake, stakeLoading, lockedLoading, locked, getStake, getLocked } =
@@ -93,7 +94,8 @@ const InfoPanel = ({ contract }) => {
                 Total Staking Balance
               </div>
               <div style={{ fontSize: 36, fontWeight: 700 }}>
-                {stake + locked}
+                {formatCash(stake + locked).num +
+                  formatCash(stake + locked).unit}
               </div>
               <div
                 style={{
@@ -127,7 +129,9 @@ const InfoPanel = ({ contract }) => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 My Staking Balance
               </div>
-              <div style={{ fontSize: 36, fontWeight: 700 }}>{stake}</div>
+              <div style={{ fontSize: 36, fontWeight: 700 }}>
+                {formatCash(stake).num + formatCash(stake).unit}
+              </div>
               <div
                 style={{
                   fontSize: 16,
@@ -160,7 +164,9 @@ const InfoPanel = ({ contract }) => {
               <div style={{ color: "#888", fontSize: 16, marginBottom: 4 }}>
                 Locked amount
               </div>
-              <div style={{ fontSize: 36, fontWeight: 700 }}>{locked}</div>
+              <div style={{ fontSize: 36, fontWeight: 700 }}>
+                {formatCash(locked).num + formatCash(locked).unit}
+              </div>
               <div
                 style={{
                   fontSize: 16,
@@ -222,7 +228,9 @@ const InfoPanel = ({ contract }) => {
           <div style={{ marginBottom: 12, fontSize: 24, fontWeight: 700 }}>
             in{" "}
             {(
-              dayjs(userinfo.score_info.score_end).add(7, 'd').diff(dayjs(), "minute") / 60
+              dayjs(userinfo.score_info.score_end)
+                .add(7, "d")
+                .diff(dayjs(), "minute") / 60
             ).toLocaleString()}{" "}
             hours
           </div>
@@ -245,7 +253,8 @@ const StakePanel = ({ contract }) => {
   const { userinfo } = useStateStore();
   const { sender } = useSender();
 
-  const { balance, walletContract, release, getRelease, releaseLoading } = contract;
+  const { balance, walletContract, release, getRelease, releaseLoading } =
+    contract;
 
   const handleStake = async () => {
     const showedRef = localStorage.getItem(
@@ -438,21 +447,31 @@ const StakePanel = ({ contract }) => {
             }}
           >
             <img
-            src="/logo.png"
-            alt="logo"
-            style={{
-              width: 45,
-              height: 45,
-              objectFit: "contain",
-              marginRight: 6,
-            }}
-          />
-            Claim amount <SyncOutlined style={{fontSize: 16, marginLeft: 8, marginTop: 12, cursor: 'pointer'}} onClick={() => {
-              getRelease()
-            }} spin={releaseLoading}/>
+              src="/logo.png"
+              alt="logo"
+              style={{
+                width: 45,
+                height: 45,
+                objectFit: "contain",
+                marginRight: 6,
+              }}
+            />
+            Claim amount{" "}
+            <SyncOutlined
+              style={{
+                fontSize: 16,
+                marginLeft: 8,
+                marginTop: 12,
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                getRelease();
+              }}
+              spin={releaseLoading}
+            />
           </div>
           <div style={{ fontSize: 88, textAlign: "center", fontWeight: 700 }}>
-            {release}
+            {formatCash(release).num + formatCash(release).unit}
             <span style={{ fontSize: 32, marginLeft: 32 }}>TEF</span>
           </div>
         </div>
