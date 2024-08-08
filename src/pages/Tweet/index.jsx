@@ -1,6 +1,6 @@
 import { Button, Image, Input, Popover, Tooltip, Upload, message } from "antd";
 import styles from "./index.module.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getAiTweet, getPostTags, postTwitter, queryUser } from "../../api";
 import HashtagOverview from "./HashtagOverview";
 import {
@@ -14,6 +14,8 @@ import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import MeetWithTweetFi from "./MeetWithTweetFi";
 import { useDispatchStore, useStateStore } from "../../context";
 import InvestBanner from "../Invest/InvestBanner";
+import dayjs from "dayjs";
+import { formatDuration } from "@/utils/duration";
 
 const Tweet = ({ setActiveTab }) => {
   const [input, setInput] = useState("");
@@ -25,6 +27,7 @@ const Tweet = ({ setActiveTab }) => {
   const [tweetLoading, setTweetLoading] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [images, setImages] = useState([]);
+  const [countDown, setCountDown] = useState(false);
   const { userinfo } = useStateStore();
   const dispatch = useDispatchStore();
 
@@ -119,6 +122,38 @@ const Tweet = ({ setActiveTab }) => {
   useEffect(() => {
     getTweetTags();
   }, []);
+
+  useEffect(() => {
+    const btn = document.getElementById("tweet-btn");
+    const cd = document.getElementById("count-down");
+    let interval = null;
+    const ms2Hour = 1000 * 60 * 60;
+    const hourDiff = dayjs().diff(dayjs(userinfo.last_twitter_at)) / ms2Hour;
+    const countDownEnd = () => {
+      setCountDown(false);
+      btn.style.display = "block";
+      cd.style.display = "none";
+    };
+    if (hourDiff > 1) {
+      countDownEnd();
+    } else {
+      setCountDown(true);
+      btn.style.display = "none";
+      cd.style.display = "block";
+      interval = setInterval(() => {
+        const diff = dayjs().diff(dayjs(userinfo.last_twitter_at));
+        if (diff > 1 * ms2Hour) {
+          countDownEnd();
+          clearInterval(interval);
+          interval = null;
+        }
+        cd.innerText = formatDuration(ms2Hour - diff);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [userinfo]);
 
   return (
     <div
@@ -406,14 +441,22 @@ const Tweet = ({ setActiveTab }) => {
                     type="primary"
                     style={{
                       height: 40,
-                      cursor: canTweet ? "pointer" : "not-allowed",
+                      cursor:
+                        canTweet && !countDown ? "pointer" : "not-allowed",
                       borderRadius: "24px",
-                      opacity: canTweet ? "1" : ".5",
+                      opacity: canTweet && !countDown ? "1" : ".5",
                     }}
-                    onClick={handleTweet}
+                    onClick={() => {
+                      if (canTweet && !countDown) {
+                        handleTweet();
+                      }
+                    }}
                     loading={tweetLoading}
                   >
-                    TWEET&nbsp;{userinfo.twitter_day_count ?? 0}/3
+                    <div id="tweet-btn">
+                      TWEET&nbsp;{userinfo.twitter_day_count ?? 0}/3
+                    </div>
+                    <div id="count-down"></div>
                   </Button>
                 </Tooltip>
               </div>
