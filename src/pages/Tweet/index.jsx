@@ -131,7 +131,7 @@ const Tweet = ({ setActiveTab }) => {
     const hourDiff = dayjs().diff(dayjs(userinfo.last_twitter_at)) / ms2Hour;
     const countDownEnd = () => {
       setCountDown(false);
-      btn.style.display = "block";
+      btn.style.display = "flex";
       cd.style.display = "none";
     };
     if (hourDiff > 1) {
