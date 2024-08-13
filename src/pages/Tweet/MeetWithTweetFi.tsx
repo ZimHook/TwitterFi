@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { tabs } from "../Home";
 import { SyncIcon } from "@/components/icon";
 import { beginCell } from "@ton/ton";
+import { Buffer } from "buffer";
 
 const percentageToPos = (ipercentage: number, r: number) => {
   let percentage = ipercentage;
