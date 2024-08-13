@@ -124,6 +124,7 @@ const Tweet = ({ setActiveTab }) => {
   }, []);
 
   useEffect(() => {
+    if(!userinfo.last_twitter_at) return;
     const btn = document.getElementById("tweet-btn");
     const cd = document.getElementById("count-down");
     let interval = null;
