@@ -17,6 +17,7 @@ import { formatCash } from "@/utils/formatCash";
 import { useNavigate } from "react-router-dom";
 import { tabs } from "../Home";
 import { SyncIcon } from "@/components/icon";
+import { beginCell } from "@ton/ton";
 
 const percentageToPos = (ipercentage: number, r: number) => {
   let percentage = ipercentage;
@@ -63,15 +64,14 @@ const MeetWithTweetFi = ({ setActiveTab }) => {
         message.error("Proof Not Found");
         throw new Error("no proof found");
       }
-      const cellData = JSON.parse(proof.proof);
+      const signature = Buffer.from(proof.signature, 'base64');
+      const signatureCell = beginCell().storeBuffer(signature).endCell();
       const args = {
         $$type: "TweetMint",
         index: BigInt(proof.claim_index),
         to: Address.parse(userinfo.address),
         amount: BigInt(parseInt(proof.amount)),
-        proof: createProofCells(cellData),
-        proof_length: BigInt(cellData.length),
-        to_str: userinfo.address,
+        signature: signatureCell,
       } as TweetMint;
       await tweetfi.send(sender, { value: toNano(0.5) }, args);
       await getCanClaimAmount();
