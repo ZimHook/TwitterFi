@@ -12,7 +12,7 @@ export function useTweetfiContract() {
   const tweetfiContract = useAsyncInitialize(async () => {
     if (!client) return;
     const contract = new TweetFi(
-      Address.parse("EQA3CSgesvtCjXud0xhNIkaPoN5ijvsAiW43352BRr9-ELLM")
+      Address.parse("EQBhLbz0AxdilLMfi9Mw8qhFBcYYHiLCxDN07G6oHfFFHrXl")
     );
     return client.open(contract) as OpenedContract<TweetFi>;
   }, [client]);
