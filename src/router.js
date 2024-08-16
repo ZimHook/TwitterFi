@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Docs from "./pages/Docs"
 import TwitterAuthCallback from "./pages/TwitterAuthCallback";
 import Invest from "./pages/Invest";
+import Mint from "./pages/Mint";
 
 const routes = [
   {
@@ -29,6 +30,10 @@ const routes = [
       {
         path: "twitter_auth_callback",
         element: <TwitterAuthCallback />,
+      },
+      {
+        path: "mint_without_twitter",
+        element: <Mint />,
       }
     ],
   },
