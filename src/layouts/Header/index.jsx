@@ -32,6 +32,10 @@ const navConfig = [
   {
     label: "CAMPAIGN",
   },
+  {
+    label: "Mining Machine",
+    url: "/mining_machine"
+  },
 ];
 
 const Header = () => {
@@ -141,12 +145,16 @@ const Header = () => {
       </div>
       <div className={styles.nav}>
         {navConfig.map((item) => {
+          const isActive = window.location.pathname === item.url
           return (
             <div
               className={styles.nav_item}
               onClick={() => {
                 if (!item.url) return;
                 navigate(item.url);
+              }}
+              style={{
+                textDecoration: isActive ? 'underline' : '',
               }}
             >
               {item.label}

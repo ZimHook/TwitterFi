@@ -5,6 +5,7 @@ import Docs from "./pages/Docs"
 import TwitterAuthCallback from "./pages/TwitterAuthCallback";
 import Invest from "./pages/Invest";
 import Mint from "./pages/Mint";
+import MiningMachine from "./pages/MiningMachine";
 
 const routes = [
   {
@@ -26,6 +27,10 @@ const routes = [
       {
         path: "invest",
         element: <Invest />,
+      },
+      {
+        path: "mining_machine",
+        element: <MiningMachine />,
       },
       {
         path: "twitter_auth_callback",
