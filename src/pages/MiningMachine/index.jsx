@@ -173,7 +173,7 @@ const MiningMachine = () => {
           current={current}
         />
         <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
-          You need to pay: {current?.usdt_price ?? "-"} amount
+          You need to pay: {current?.usdt_price ?? "-"} USD₮
         </div>
         <div
           style={{
