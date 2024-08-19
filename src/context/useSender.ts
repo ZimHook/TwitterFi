@@ -5,7 +5,11 @@ import { useStateStore } from ".";
 import { message } from "antd";
 import { getAccountSeqNo, getAccountTransactions } from "@/api";
 
-export function useSender(): { sender: Sender; connected: boolean } {
+export function useSender(): {
+  check: () => void;
+  sender: Sender;
+  connected: boolean;
+} {
   const [tonConnectUI] = useTonConnectUI();
   const connectedAddress = useTonAddress(false);
   const { userinfo } = useStateStore();
@@ -33,11 +37,17 @@ export function useSender(): { sender: Sender; connected: boolean } {
   };
 
   return {
+    check: () => {
+      if (!checkConnection()) {
+        message.info("Connect Wallet First");
+        throw new Error("Not Connected");
+      }
+    },
     sender: {
       send: async (args: SenderArguments) => {
-        if(!checkConnection()){
-          message.info("Connect Wallet First")
-          throw new Error("Not Connected")
+        if (!checkConnection()) {
+          message.info("Connect Wallet First");
+          throw new Error("Not Connected");
         }
         const currentSeqNo = await getAccountSeqNo(connectedAddress);
         const { boc } = await tonConnectUI.sendTransaction({

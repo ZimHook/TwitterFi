@@ -1,17 +1,107 @@
 import { useStateStore } from "@/context";
 import MachineSelect from "./MachineSelect";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  createMachineOrder,
+  getMachineConfig,
+  getMachineOrderHistory,
+} from "@/api";
+import { message } from "antd";
+import History from "./History";
+import TonWeb from "tonweb";
+import { Address, beginCell, toNano } from "@ton/ton";
+import { createJettonTransferBody } from "@/utils/createJettonTransferBody";
+import { useTonConnectUI } from "@tonconnect/ui-react";
+import { useSender } from "@/context/useSender";
 
 const MiningMachine = () => {
   const { userinfo } = useStateStore();
-  const navigate = useNavigate()
+  const [tonConnectUI] = useTonConnectUI();
+  const navigate = useNavigate();
+  const { check, sender } = useSender();
   const { connected, address } = userinfo;
 
-  const handleBuy = () => {
-    if(!connected || !address) {
-      navigate('/')
+  const [config, setConfig] = useState({});
+  const [current, setCurrent] = useState({});
+  const [history, setHistory] = useState([]);
+
+  const handleBuy = async () => {
+    if (!connected || !address) {
+      navigate("/");
+      return;
     }
-  }
+    const order_type_name = current.name;
+    const targetAddress = config?.deposit_address;
+    const decimal = Number(config?.order_token?.decimals);
+    const price = Number(current.usdt_price);
+    const contractAddress = config?.order_token?.friend_address;
+    if (!order_type_name) {
+      message.info("Select a machine first");
+      return;
+    }
+    if (!targetAddress || !decimal || !contractAddress) {
+      message.info("Select a machine first");
+      return;
+    }
+    try {
+      check();
+      const res = await createMachineOrder(order_type_name);
+      const memo = res.data?.data?.memo;
+      if (!memo) {
+        message.error("Order Create Failed");
+        return;
+      }
+      const tonweb = new TonWeb();
+      const jettonMinter = new TonWeb.token.jetton.JettonMinter(
+        tonweb.provider,
+        { address: contractAddress }
+      );
+      const jettonWalletContract = await jettonMinter.getJettonWalletAddress(
+        new TonWeb.utils.Address(userinfo.address)
+      );
+      const body = createJettonTransferBody(
+        memo,
+        price * Math.pow(10, decimal),
+        targetAddress,
+        targetAddress
+      );
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 360,
+        messages: [
+          {
+            address: jettonWalletContract, // sender jetton wallet
+            amount: toNano(0.05).toString(), // for commission fees, excess will be returned
+            payload: body.toBoc().toString("base64"), // payload with jetton transfer body
+          },
+        ],
+      };
+      console.log(transaction)
+      await tonConnectUI.sendTransaction(transaction);
+      await getHistory();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getHistory = async () => {
+    try {
+      const res = await getMachineOrderHistory();
+      setHistory(res.data?.data ?? []);
+    } catch (message) {
+      console.log(message);
+    }
+  };
+
+  useEffect(() => {
+    getMachineConfig()
+      .then((res) => {
+        setConfig(res.data?.data ?? {});
+        setCurrent(res.data?.data?.order_type?.[0]);
+      })
+      .catch(console.log);
+    getHistory();
+  }, []);
 
   return (
     <div
@@ -77,9 +167,13 @@ const MiningMachine = () => {
         <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
           Node mechanism:Select the level you want to purchase
         </div>
-        <MachineSelect />
+        <MachineSelect
+          config={config?.order_type ?? []}
+          onChange={setCurrent}
+          current={current}
+        />
         <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
-          You need to pay: mock amount
+          You need to pay: {current?.usdt_price ?? "-"} amount
         </div>
         <div
           style={{
@@ -152,10 +246,11 @@ const MiningMachine = () => {
               position: "relative",
             }}
           >
-            {connected && address ? 'PAY NOW' : 'LOGIN'}
+            {connected && address ? "PAY NOW" : "LOGIN"}
           </div>
         </div>
       </div>
+      <History history={history} />
     </div>
   );
 };

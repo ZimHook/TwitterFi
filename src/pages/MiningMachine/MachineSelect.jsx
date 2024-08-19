@@ -1,16 +1,7 @@
 import { useState } from "react";
 import styles from "./index.module.scss";
 
-const config = [
-  { level: "mock", quantity: "mock", price: "mock", increased: "mock" },
-  { level: "mock", quantity: "mock", price: "mock", increased: "mock" },
-  { level: "mock", quantity: "mock", price: "mock", increased: "mock" },
-  { level: "mock", quantity: "mock", price: "mock", increased: "mock" },
-];
-
-const MachineSelect = () => {
-  const [current, setCurrent] = useState(0);
-
+const MachineSelect = ({ config, onChange, current }) => {
   return (
     <div
       style={{
@@ -20,7 +11,7 @@ const MachineSelect = () => {
       }}
     >
       {config.map((item, index) => {
-        const active = index === current;
+        const active = item.name === current.name;
         return (
           <div
             className={styles.machine_item}
@@ -33,7 +24,7 @@ const MachineSelect = () => {
             }}
             key={index}
             onClick={() => {
-              setCurrent(index);
+              onChange(item);
             }}
           >
             <div
@@ -50,13 +41,13 @@ const MachineSelect = () => {
                 style={{ width: 32, height: 32 }}
                 alt=""
               />
-              Level{item.level}
+              {item.name}
             </div>
-            <div className={styles.desc}>Unit price:: {item.price}</div>
-            <div className={styles.desc}>Quantity: {item.quantity}</div>
+            <div className={styles.desc}>Unit price:: {item.usdt_price}U</div>
+            <div className={styles.desc}>Quantity: {item.count}</div>
             <div className={styles.desc}>
-              Computing power:mining computing power increased by{" "}
-              {item.increased} times
+              Computing power:mining computing power increased by {item.boost}{" "}
+              times
             </div>
           </div>
         );

@@ -162,7 +162,10 @@ export const claimProof = async () => {
 };
 
 export const queryTagsCount = async (start_date, end_date) => {
-  const res = await request.post("/api/twitters/v2/tags_range", { start_date, end_date });
+  const res = await request.post("/api/twitters/v2/tags_range", {
+    start_date,
+    end_date,
+  });
   return res;
 };
 
@@ -171,11 +174,24 @@ export const referList = async () => {
   return res?.data;
 };
 
+export const getMachineConfig = async () => {
+  const res = await request.get("/api/mint/order_config");
+  return res;
+};
+
+export const createMachineOrder = async (order_type_name) => {
+  const res = await request.post("/api/mint/order/create", { order_type_name });
+  return res;
+};
+
+export const getMachineOrderHistory = async () => {
+  const res = await request.get("/api/mint/order_history");
+  return res;
+};
+
 export const getAccountSeqNo = async (address) => {
   const res = await fetch(
-    "https://tonapi.io/v2/wallet/" +
-      encodeURIComponent(address) +
-      "/seqno",
+    "https://tonapi.io/v2/wallet/" + encodeURIComponent(address) + "/seqno",
     {
       method: "GET",
       headers: {
