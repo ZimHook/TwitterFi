@@ -67,10 +67,10 @@ const MiningMachine = () => {
         targetAddress
       );
       const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 360,
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
         messages: [
           {
-            address: jettonWalletContract, // sender jetton wallet
+            address: jettonWalletContract.toString(), // sender jetton wallet
             amount: toNano(0.05).toString(), // for commission fees, excess will be returned
             payload: body.toBoc().toString("base64"), // payload with jetton transfer body
           },
