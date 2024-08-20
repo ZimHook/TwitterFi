@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./index.module.scss";
 
-const MachineSelect = ({ config, onChange, current }) => {
+const MachineSelect = ({ config, onChange, current, decimal }) => {
   return (
     <div
       style={{
@@ -43,7 +43,7 @@ const MachineSelect = ({ config, onChange, current }) => {
               />
               {item.name}
             </div>
-            <div className={styles.desc}>Unit price:: {item.usdt_price}U</div>
+            <div className={styles.desc}>Unit price:: {item.usdt_price / Math.pow(10, decimal)}U</div>
             <div className={styles.desc}>Quantity: {item.count}</div>
             <div className={styles.desc}>
               Computing power:mining computing power increased by {item.boost}{" "}

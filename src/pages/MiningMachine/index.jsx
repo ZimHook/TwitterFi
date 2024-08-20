@@ -26,6 +26,8 @@ const MiningMachine = () => {
   const [current, setCurrent] = useState({});
   const [history, setHistory] = useState([]);
 
+  const decimal = Number(config?.order_token?.decimals);
+
   const handleBuy = async () => {
     if (!connected || !address) {
       navigate("/");
@@ -33,7 +35,6 @@ const MiningMachine = () => {
     }
     const order_type_name = current.name;
     const targetAddress = config?.deposit_address;
-    const decimal = Number(config?.order_token?.decimals);
     const price = Number(current.usdt_price);
     const contractAddress = config?.order_token?.friend_address;
     if (!order_type_name) {
@@ -62,7 +63,7 @@ const MiningMachine = () => {
       );
       const body = createJettonTransferBody(
         memo,
-        price * Math.pow(10, decimal),
+        price,
         targetAddress,
         targetAddress
       );
@@ -171,9 +172,10 @@ const MiningMachine = () => {
           config={config?.order_type ?? []}
           onChange={setCurrent}
           current={current}
+          decimal={decimal}
         />
         <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
-          You need to pay: {current?.usdt_price ?? "-"} USD₮
+          You need to pay: {current?.usdt_price / Math.pow(10, decimal) ?? "-"} USD₮
         </div>
         <div
           style={{
