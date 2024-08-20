@@ -19,8 +19,9 @@ import {
   useTonConnectUI,
   useTonWallet,
 } from "@tonconnect/ui-react";
-import { generateStates } from "../../utils/binaryString.js";
+import { useAtom } from 'jotai'
 import { getUrlParams } from "../../utils/getUrlParams.js";
+import { loginLoading } from "@/atom";
 
 const Step = (props) => {
   return (
@@ -45,7 +46,7 @@ const Connect = () => {
   const [tonConnectUI] = useTonConnectUI();
   const tonaddress = useTonAddress(true);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useAtom(loginLoading);
 
   const ref_code = getUrlParams("ref");
 
@@ -159,15 +160,6 @@ const Connect = () => {
     }
   }, [tonaddress]);
 
-  useEffect(() => {
-    setLoading(true);
-    const jwt = localStorage.getItem("twitterfi_jwt");
-    if (jwt) {
-      getUserinfo();
-    } else {
-      setLoading(false);
-    }
-  }, []);
 
   return (
     <div className={styles.connect}>
