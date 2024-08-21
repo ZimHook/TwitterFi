@@ -14,6 +14,7 @@ import { Address, beginCell, toNano } from "@ton/ton";
 import { createJettonTransferBody } from "@/utils/createJettonTransferBody";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { useSender } from "@/context/useSender";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const MiningMachine = () => {
   const { userinfo } = useStateStore();
@@ -21,10 +22,24 @@ const MiningMachine = () => {
   const navigate = useNavigate();
   const { check, sender } = useSender();
   const { connected, address } = userinfo;
+  const queryClient = useQueryClient()
 
   const [config, setConfig] = useState({});
   const [current, setCurrent] = useState({});
-  const [history, setHistory] = useState([]);
+
+  const { data: history = []} = useQuery({
+    queryKey: ["mining_machine_history"],
+    queryFn: async () => {
+      try {
+        const res = await getMachineOrderHistory();
+        return res?.data?.data ?? [];
+      } catch (err) {
+        console.log(err);
+        return [];
+      }
+    },
+    enabled: userinfo.connected,
+  });
 
   const decimal = Number(config?.order_token?.decimals);
 
@@ -79,18 +94,9 @@ const MiningMachine = () => {
       };
       console.log(transaction);
       await tonConnectUI.sendTransaction(transaction);
-      await getHistory();
+      await queryClient.invalidateQueries({ queryKey: ["mining_machine_history"] })
     } catch (err) {
       console.log(err);
-    }
-  };
-
-  const getHistory = async () => {
-    try {
-      const res = await getMachineOrderHistory();
-      setHistory(res.data?.data ?? []);
-    } catch (message) {
-      console.log(message);
     }
   };
 
@@ -101,7 +107,6 @@ const MiningMachine = () => {
         setCurrent(res.data?.data?.order_type?.[0]);
       })
       .catch(console.log);
-    getHistory();
   }, []);
 
   return (
@@ -169,16 +174,22 @@ const MiningMachine = () => {
           <>
             <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
               Your Mining Machine:
-              <div style={{marginTop: 16, display: 'flex', justifyContent: 'center'}}>
-              <MachineItem
-                item={config?.order_type?.find?.(
-                  (item) => item?.name === userinfo.mint_order_type
-                )}
-                onChange={setCurrent}
-                current={current}
-                decimal={decimal}
-                active={true}
-              />
+              <div
+                style={{
+                  marginTop: 16,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <MachineItem
+                  item={config?.order_type?.find?.(
+                    (item) => item?.name === userinfo.mint_order_type
+                  )}
+                  onChange={setCurrent}
+                  current={current}
+                  decimal={decimal}
+                  active={true}
+                />
               </div>
             </div>
           </>

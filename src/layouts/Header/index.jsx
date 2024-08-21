@@ -11,6 +11,7 @@ import {
   queryUser,
   bindWallet,
   reigster,
+  getMachineOrderHistory,
 } from "../../api/index.js";
 import {
   TonConnectButton,
@@ -19,7 +20,8 @@ import {
   useTonWallet,
 } from "@tonconnect/ui-react";
 import { openWindow } from "../../utils/window.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 const navConfig = [
   {
@@ -34,7 +36,7 @@ const navConfig = [
   },
   {
     label: "Mining Machine",
-    url: "/mining_machine"
+    url: "/mining_machine",
   },
 ];
 
@@ -45,6 +47,19 @@ const Header = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [tonConnectUI] = useTonConnectUI();
+  const { data: history } = useQuery({
+    queryKey: ["mining_machine_history"],
+    queryFn: async () => {
+      try {
+        const res = await getMachineOrderHistory();
+        return res?.data?.data ?? [];
+      } catch (err) {
+        console.log(err);
+        return [];
+      }
+    },
+    enabled: connected,
+  });
 
   const connectWallet = () => {
     tonConnectUI
@@ -145,7 +160,7 @@ const Header = () => {
       </div>
       <div className={styles.nav}>
         {navConfig.map((item) => {
-          const isActive = window.location.pathname === item.url
+          const isActive = window.location.pathname === item.url;
           return (
             <div
               className={styles.nav_item}
@@ -154,7 +169,7 @@ const Header = () => {
                 navigate(item.url);
               }}
               style={{
-                textDecoration: isActive ? 'underline' : '',
+                textDecoration: isActive ? "underline" : "",
               }}
             >
               {item.label}
@@ -188,10 +203,12 @@ const Header = () => {
                       }}
                     >
                       {shortenAddress(userinfo.address)}
-                      <CopyOutlined onClick={() => {
-                        message.success("Address copied")
-                        navigator.clipboard.writeText(userinfo.address)
-                      }}/>
+                      <CopyOutlined
+                        onClick={() => {
+                          message.success("Address copied");
+                          navigator.clipboard.writeText(userinfo.address);
+                        }}
+                      />
                     </div>
                   </div>
                   <div
@@ -226,30 +243,7 @@ const Header = () => {
                     }}
                   >
                     <div style={{ fontWeight: 700, color: "#000" }}>
-                      Mining Machine
-                    </div>
-                    <div
-                      style={{
-                        color: "#8c8c8c",
-                        maxWidth: 100,
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {userinfo.mint_order_type_desc}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
-                  >
-                    <div style={{ fontWeight: 700, color: "#000" }}>
-                    Referral code
+                      Referral code
                     </div>
                     <div
                       style={{
@@ -261,10 +255,12 @@ const Header = () => {
                       }}
                     >
                       {userinfo.ref_code}
-                      <CopyOutlined onClick={() => {
-                        message.success("Referral code copied")
-                        navigator.clipboard.writeText(userinfo.ref_code)
-                      }}/>
+                      <CopyOutlined
+                        onClick={() => {
+                          message.success("Referral code copied");
+                          navigator.clipboard.writeText(userinfo.ref_code);
+                        }}
+                      />
                     </div>
                   </div>
                   <div
@@ -283,13 +279,59 @@ const Header = () => {
                         color: "#8c8c8c",
                       }}
                     >
-                      {shortenAddress(window.location.origin + '?ref=' + userinfo.ref_code)}
+                      {shortenAddress(
+                        window.location.origin + "?ref=" + userinfo.ref_code
+                      )}
                       <CopyOutlined
                         onClick={() => {
                           message.success("Referral code copied");
-                          navigator.clipboard.writeText(window.location.origin + '?ref=' + userinfo.ref_code);
+                          navigator.clipboard.writeText(
+                            window.location.origin + "?ref=" + userinfo.ref_code
+                          );
                         }}
                       />
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: "#000" }}>
+                      Mining Machine
+                    </div>
+                    <div
+                      style={{
+                        color: "#8c8c8c",
+                        maxWidth: 100,
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {history?.length ? (
+                        userinfo?.mint_order_type_desc ? (
+                          userinfo.mint_order_type_desc
+                        ) : (
+                          <div>
+                            <LoadingOutlined />
+                            <span style={{ marginLeft: 4 }}>Pending</span>
+                          </div>
+                        )
+                      ) : (
+                        <Button
+                          type="primary"
+                          size="small"
+                          onClick={() => {
+                            navigate("/mining_machine");
+                          }}
+                        >
+                          GET
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -311,14 +353,12 @@ const Header = () => {
             }
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{textAlign: 'center', color: '#fff', fontSize: 14}}>
+              <div style={{ textAlign: "center", color: "#fff", fontSize: 14 }}>
                 <div>
-                <span style={{ color: "#03FFF9" }}>Hi,&nbsp;</span>
-                {userinfo.screen_name}
+                  <span style={{ color: "#03FFF9" }}>Hi,&nbsp;</span>
+                  {userinfo.screen_name}
                 </div>
-                <div>
-                  AccountLevel: {userinfo?.level ?? '-'}
-                </div>
+                <div>AccountLevel: {userinfo?.level ?? "-"}</div>
               </div>
               <div
                 style={{
