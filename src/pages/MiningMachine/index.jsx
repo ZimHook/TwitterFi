@@ -1,5 +1,5 @@
 import { useStateStore } from "@/context";
-import MachineSelect from "./MachineSelect";
+import MachineSelect, { MachineItem } from "./MachineSelect";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
@@ -77,7 +77,7 @@ const MiningMachine = () => {
           },
         ],
       };
-      console.log(transaction)
+      console.log(transaction);
       await tonConnectUI.sendTransaction(transaction);
       await getHistory();
     } catch (err) {
@@ -165,92 +165,114 @@ const MiningMachine = () => {
           in purchasing nodes. We will provide 10% rebate to disseminators, and
           one free node will be given for every 20 nodes sold.
         </div>
-        <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
-          Node mechanism:Select the level you want to purchase
-        </div>
-        <MachineSelect
-          config={config?.order_type ?? []}
-          onChange={setCurrent}
-          current={current}
-          decimal={decimal}
-        />
-        <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
-          You need to pay: {current?.usdt_price / Math.pow(10, decimal) ?? "-"} USD₮
-        </div>
-        <div
-          style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: 48,
-            width: "fit-content",
-            marginInline: "auto",
-            cursor: "pointer",
-            marginTop: "64px",
-          }}
-          onClick={handleBuy}
-        >
-          <svg
-            width="156"
-            height="48"
-            viewBox="0 0 156 48"
-            style={{ position: "absolute" }}
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect
-              x="0.5"
-              y="0.5"
-              width="155"
-              height="47"
-              rx="23.5"
-              fill="url(#paint0_linear_245_5)"
+        {userinfo?.mint_order_type ? (
+          <>
+            <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
+              Your Mining Machine:
+              <div style={{marginTop: 16, display: 'flex', justifyContent: 'center'}}>
+              <MachineItem
+                item={config?.order_type?.find?.(
+                  (item) => item?.name === userinfo.mint_order_type
+                )}
+                onChange={setCurrent}
+                current={current}
+                decimal={decimal}
+                active={true}
+              />
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
+              Node mechanism: Select the level you want to purchase
+            </div>
+            <MachineSelect
+              config={config?.order_type ?? []}
+              onChange={setCurrent}
+              current={current}
+              decimal={decimal}
             />
-            <rect
-              x="0.5"
-              y="0.5"
-              width="155"
-              height="47"
-              rx="23.5"
-              stroke="url(#paint1_linear_245_5)"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear_245_5"
-                x1="78"
-                y1="0"
-                x2="78"
-                y2="48"
-                gradientUnits="userSpaceOnUse"
+            <div style={{ marginTop: 34, fontSize: 24, fontWeight: 700 }}>
+              You need to pay:{" "}
+              {current?.usdt_price / Math.pow(10, decimal) ?? "-"} USD₮
+            </div>
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 48,
+                width: "fit-content",
+                marginInline: "auto",
+                cursor: "pointer",
+                marginTop: "64px",
+              }}
+              onClick={handleBuy}
+            >
+              <svg
+                width="156"
+                height="48"
+                viewBox="0 0 156 48"
+                style={{ position: "absolute" }}
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <stop stop-color="#3E90F0" />
-                <stop offset="1" stop-color="#1B6ECF" />
-              </linearGradient>
-              <linearGradient
-                id="paint1_linear_245_5"
-                x1="3.79523e-07"
-                y1="5.71429"
-                x2="143.338"
-                y2="97.6077"
-                gradientUnits="userSpaceOnUse"
+                <rect
+                  x="0.5"
+                  y="0.5"
+                  width="155"
+                  height="47"
+                  rx="23.5"
+                  fill="url(#paint0_linear_245_5)"
+                />
+                <rect
+                  x="0.5"
+                  y="0.5"
+                  width="155"
+                  height="47"
+                  rx="23.5"
+                  stroke="url(#paint1_linear_245_5)"
+                />
+                <defs>
+                  <linearGradient
+                    id="paint0_linear_245_5"
+                    x1="78"
+                    y1="0"
+                    x2="78"
+                    y2="48"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stop-color="#3E90F0" />
+                    <stop offset="1" stop-color="#1B6ECF" />
+                  </linearGradient>
+                  <linearGradient
+                    id="paint1_linear_245_5"
+                    x1="3.79523e-07"
+                    y1="5.71429"
+                    x2="143.338"
+                    y2="97.6077"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stop-color="white" stop-opacity="0.4" />
+                    <stop offset="1" stop-color="white" stop-opacity="0.1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div
+                style={{
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: 18,
+                  position: "relative",
+                }}
               >
-                <stop stop-color="white" stop-opacity="0.4" />
-                <stop offset="1" stop-color="white" stop-opacity="0.1" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <div
-            style={{
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 18,
-              position: "relative",
-            }}
-          >
-            {connected && address ? "PAY NOW" : "LOGIN"}
-          </div>
-        </div>
+                {connected && address ? "PAY NOW" : "LOGIN"}
+              </div>
+            </div>
+          </>
+        )}
       </div>
       <History history={history} />
     </div>

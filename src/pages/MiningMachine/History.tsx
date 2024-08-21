@@ -66,7 +66,9 @@ const History = ({ history }: { history: any[] }) => {
                 {shortenAddress(userinfo.address, 20)}
               </div>
               <div style={{ width: 1, flexGrow: 1 }}>{item.mint_code}</div>
-              <div style={{ width: 1, flexGrow: 1 }}>{item.status}</div>
+              <div style={{ width: 1, flexGrow: 1 }}>
+                {item.status === "succ" ? "Success" : item.status}
+              </div>
             </div>
           );
         })}

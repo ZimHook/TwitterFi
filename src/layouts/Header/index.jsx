@@ -226,6 +226,29 @@ const Header = () => {
                     }}
                   >
                     <div style={{ fontWeight: 700, color: "#000" }}>
+                      Mining Machine
+                    </div>
+                    <div
+                      style={{
+                        color: "#8c8c8c",
+                        maxWidth: 100,
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {userinfo.mint_order_type_desc}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: "#000" }}>
                     Referral code
                     </div>
                     <div
