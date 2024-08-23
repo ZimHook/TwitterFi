@@ -268,7 +268,7 @@ const StakePanel = ({ contract }) => {
         setStaking(true);
         await walletContract.send(
           sender,
-          { value: toNano(0.5) },
+          { value:  toNano(0.15) },
           {
             $$type: "Stake",
             amount: Number(stakeInput) * 1e9,
@@ -293,7 +293,7 @@ const StakePanel = ({ contract }) => {
       setClaiming(true);
       await walletContract.send(
         sender,
-        { value: toNano(0.5) },
+        { value:  toNano(0.15) },
         {
           $$type: "Claim",
           amount: Number(claimInput) * 1e9,

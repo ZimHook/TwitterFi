@@ -38,7 +38,7 @@ const TweetContent = ({ tweet, tipValue, walletContract, balance }) => {
     try {
       await walletContract.send(
         sender,
-        { value: toNano(0.5) },
+        { value:  toNano(0.15) },
         {
           $$type: "Tip",
           query_id: 0,

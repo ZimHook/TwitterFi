@@ -74,7 +74,7 @@ const MeetWithTweetFi = ({ setActiveTab }) => {
         amount: BigInt(parseInt(proof.amount)),
         signature: signatureCell,
       } as TweetMint;
-      await tweetfi.send(sender, { value: toNano(0.5) }, args);
+      await tweetfi.send(sender, { value:  toNano(0.15) }, args);
       await getCanClaimAmount();
     } catch (err) {
       message.error("Failed");

@@ -46,7 +46,7 @@ const Mint = () => {
         amount: BigInt(parseInt(proof.amount)),
         signature: signatureCell,
       } as TweetMint;
-      await tweetfi.send(sender, { value: toNano(0.5) }, args);
+      await tweetfi.send(sender, { value:  toNano(0.15) }, args);
     } catch (err) {
       message.error("Failed");
       console.log(err);
@@ -94,7 +94,7 @@ const Mint = () => {
         amount: BigInt(parseInt(proof.amount)),
         signature: signatureCell,
       } as TweetMint;
-      await tweetfi.send(sender, { value: toNano(0.5) }, args);
+      await tweetfi.send(sender, { value:  toNano(0.15) }, args);
     } catch (err) {
       message.error("Failed");
       console.log(err);
