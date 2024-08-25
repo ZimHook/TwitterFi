@@ -19,7 +19,7 @@ import {
   useTonConnectUI,
   useTonWallet,
 } from "@tonconnect/ui-react";
-import { useAtom } from 'jotai'
+import { useAtom } from "jotai";
 import { getUrlParams } from "../../utils/getUrlParams.js";
 import { loginLoading } from "@/atom";
 
@@ -61,12 +61,6 @@ const Connect = () => {
         const popup = openWindow({ url, name: "Auth Twitter" });
         const authResult = await new Promise((resolve) => {
           const twitterAuthKey = "twitter_auth_tmp_data";
-          const interval = setInterval(function () {
-            if (popup.closed) {
-              clearInterval(interval);
-              resolve({ errMsg: "Canceled by user" });
-            }
-          }, 500);
           const checkTwitterAuthed = () => {
             const authData = localStorage.getItem(twitterAuthKey);
             if (!authData) return;
@@ -76,7 +70,13 @@ const Connect = () => {
             popup?.close();
             resolve(JSON.parse(authData));
           };
-          window.addEventListener("storage", checkTwitterAuthed);
+          const interval = setInterval(function () {
+            if (popup.closed) {
+              clearInterval(interval);
+              resolve({ errMsg: "Canceled by user" });
+            }
+            checkTwitterAuthed();
+          }, 500);
         });
         if (authResult.errMsg) {
           message.error(authResult.errMsg);
@@ -160,19 +160,21 @@ const Connect = () => {
     }
   }, [tonaddress]);
 
-
   return (
     <div className={styles.connect}>
       <div className={styles.banner}>
         <img src="/logo.svg" alt="logo" className={styles.banner_logo} />
         <div className={styles.banner_text}>
           <div className={styles.banner_text_title}>
-          Post on X &
+            Post on X &
             <br />
             Get Rewards
           </div>
           <div className={styles.banner_text_desc}>
-          TweetFI (TEF) is an innovative social media mining platform designed to provide social media users with channels to earn money by combining artificial intelligence technology with blockchain token economics.
+            TweetFI (TEF) is an innovative social media mining platform designed
+            to provide social media users with channels to earn money by
+            combining artificial intelligence technology with blockchain token
+            economics.
           </div>
         </div>
       </div>
