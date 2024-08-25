@@ -61,6 +61,12 @@ const Connect = () => {
         const popup = openWindow({ url, name: "Auth Twitter" });
         const authResult = await new Promise((resolve) => {
           const twitterAuthKey = "twitter_auth_tmp_data";
+          const interval = setInterval(function () {
+            if (popup.closed) {
+              clearInterval(interval);
+              resolve({ errMsg: "Canceled by user" });
+            }
+          }, 500);
           const checkTwitterAuthed = () => {
             const authData = localStorage.getItem(twitterAuthKey);
             if (!authData) return;
@@ -70,13 +76,7 @@ const Connect = () => {
             popup?.close();
             resolve(JSON.parse(authData));
           };
-          const interval = setInterval(function () {
-            if (popup.closed) {
-              clearInterval(interval);
-              resolve({ errMsg: "Canceled by user" });
-            }
-            checkTwitterAuthed();
-          }, 500);
+          window.addEventListener("storage", checkTwitterAuthed);
         });
         if (authResult.errMsg) {
           message.error(authResult.errMsg);
